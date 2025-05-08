@@ -8,6 +8,7 @@ import axios from "axios";
 import Report from "./report";
 import Drivers from "./drivers";
 import Commands from "./commands";
+import LoadingBoard from "./loadingBoard";
 
 export function FloatingBoard({
   handleNotifications,
@@ -27,7 +28,7 @@ export function FloatingBoard({
   const username = localStorage.getItem("email");
   const password = localStorage.getItem("password");
   const authHeader = "Basic " + btoa(`${username}:${password}`);
-
+  
   // Estados para el audio
   const [audioEnabled, setAudioEnabled] = useState(false);
   const soundAlarmRef = useRef(null);
@@ -57,6 +58,21 @@ export function FloatingBoard({
   const [selectedDeviceForDriver, setSelectedDeviceForDriver] = useState("");
   const [commands, setcommands] = useState({});
   let advise = false;
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Efecto para verificar cuando todos los datos están cargados
+  useEffect(() => {
+    const allDataLoaded = 
+      devices.length > 0 && 
+      Object.keys(batteryLevels).length > 0 && 
+      Object.keys(lon).length > 0 && 
+      Object.keys(lat).length > 0 && 
+      Object.keys(drivers).length > 0;
+    
+    if (allDataLoaded) {
+      setIsLoading(false);
+    }
+  }, [devices, batteryLevels, lon, lat, drivers]);
 
   // Manejo de interacción del usuario para desbloquear audio
   const handleFirstInteraction = () => {
@@ -66,7 +82,7 @@ export function FloatingBoard({
       setAudioStatus("🔊 Sonido activado");
 
       if (soundAlarmRef.current) {
-        soundAlarmRef.current.volume = 0.1; // Volumen bajo para el "unlock"
+        soundAlarmRef.current.volume = 0.1;
         const playPromise = soundAlarmRef.current.play();
 
         if (playPromise !== undefined) {
@@ -117,6 +133,7 @@ export function FloatingBoard({
       fetchEvents(response.data);
     } catch (error) {
       console.error("Error al obtener dispositivos:", error);
+      setIsLoading(false);
     }
   }, [authHeader]);
 
@@ -124,11 +141,12 @@ export function FloatingBoard({
   const fetchAllDrivers = async () => {
     try {
       const response = await axios.get(`${API_URL}/drivers`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: authHeader },
       });
       setAllDrivers(response.data);
     } catch (error) {
       console.error("Error al obtener conductores:", error);
+      setIsLoading(false);
     }
   };
 
@@ -143,7 +161,7 @@ export function FloatingBoard({
           const response = await axios.get(
             `${API_URL}/drivers?deviceId=${device.id}`,
             {
-              headers: { Authorization: `Bearer ${token}` },
+              headers: { Authorization: `${authHeader}` },
             }
           );
 
@@ -154,6 +172,7 @@ export function FloatingBoard({
         } catch (error) {
           console.error("Error al obtener los conductores:", error);
           driver[device.name] = { name: "Sin conductor" };
+          setIsLoading(false);
         }
       }
       setDrivers(driver);
@@ -177,6 +196,7 @@ export function FloatingBoard({
           alarms[device.name] = response.data.attributes.alarm;
         } catch (error) {
           console.error(`Error al obtener evento de ${device.name}:`, error);
+          setIsLoading(false);
         }
       }
       setEvent(events);
@@ -236,6 +256,7 @@ export function FloatingBoard({
           }
         } catch (error) {
           console.error(`Error al obtener evento de ${device.name}:`, error);
+          setIsLoading(false);
         }
       }
       advise = false;
@@ -281,7 +302,9 @@ export function FloatingBoard({
             longitud[device.name] = "Sin datos";
             minuto[device.name] = null;
           }
-        } catch (error) {}
+        } catch (error) {
+          setIsLoading(false);
+        }
       }
 
       setBatteryLevels(batteryData);
@@ -295,6 +318,27 @@ export function FloatingBoard({
   const handleSelected = (deviceName) => {
     setSelectedDeviceForDriver(deviceName);
     console.log("Dispositivo seleccionado para conductor:", deviceName);
+    
+  };
+
+  // Enviar eventos
+  const handleSendEvent = async (deviceId, event) => {
+    console.log("Evento enviado:", event);
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_MY_BACKEND_API}/device/events/${deviceId}`,
+        { data: event },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.REACT_APP_MY_TOKEN_PASSWORD}`,
+          },
+        }
+      
+      );
+    } catch (error) {
+      
+    }
   };
 
   // Manejar el borrar ruta
@@ -332,6 +376,7 @@ export function FloatingBoard({
       return response.data;
     } catch (error) {
       console.log(error);
+      setIsLoading(false);
     }
   };
 
@@ -363,15 +408,12 @@ export function FloatingBoard({
   // Cargar dispositivos
   useEffect(() => {
     fetchDevices();
-  }, [fetchDevices]);
-
-  // Cargar conductores
-  useEffect(() => {
     fetchAllDrivers();
-  }, []);
+  }, [fetchDevices]);
 
   useEffect(() => {
     fetchDevices();
+    fetchAllDrivers();
     const interval = setInterval(fetchDevices, 5000);
     return () => clearInterval(interval);
   }, [fetchDevices]);
@@ -411,12 +453,14 @@ export function FloatingBoard({
   };
 
   // Manejar paneles
-  const handleBoardSelection = (board) => {
+  const handleBoardSelection = (board, deviceName) => {
     setBoardDevices(board === "devices");
     setBoardReports(board === "reports");
     setBoardRoutes(board === "routes");
     setBoardrivers(board === "drivers");
     setboardCommands(board === "command");
+
+    boardCommand.name = deviceName;
   };
 
   // Limpiar notificaciones
@@ -433,6 +477,10 @@ export function FloatingBoard({
       handleBoardSelection(boardCommand.name);
     }
   }, [boardCommand]);
+
+  if (isLoading) {
+    return <LoadingBoard isLoading={true}/>;
+  }
 
   return (
     <div className={menu ? "floatingBoard" : "floatingBoardHidden"}>
@@ -482,7 +530,7 @@ export function FloatingBoard({
           Activar Sonidos
         </button>
       )}
-
+      {!isLoading ? <LoadingBoard isLoading={false}/> : null}
       <header>
         <div className="header-icons">
           <div className="package" onClick={handleMenu}>
@@ -568,6 +616,7 @@ export function FloatingBoard({
                 handleBoardSelection={handleBoardSelection}
                 onDeviceSelect={handleSelected}
                 onDeleteRoute={handleDeleteRoute}
+                handleSendEvent={handleSendEvent}
               />
             ) : boardRoutes ? (
               <BotonsMain

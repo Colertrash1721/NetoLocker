@@ -9,7 +9,7 @@ async function bootstrap() {
   
   // Configuración CORS más específica
   app.enableCors({
-    origin: true, // O especifica tus dominios ['http://tufrontend.com']
+    origin: ['http://128.85.27.70:82', 'http://localhost:82', 'http://localhost:3001', 'http://128.85.27.70:8082'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });

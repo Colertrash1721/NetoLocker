@@ -1,6 +1,7 @@
 import React from "react";
 import "../style/main.css";
 
-export default function Botones(props) {
-  return <button onClick={props.onClick} id={props.id}>{props.name}</button>;
+export default function Botones({onClick, id, name, icon}) {
+  // Botones component that renders a button with an onClick event handler and an id
+  return <button onClick={onClick} id={id}><i class={icon} ></i> {name}</button>;
 }

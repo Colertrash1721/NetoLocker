@@ -6,6 +6,7 @@ import MapComponent from "./google";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { DeviceNameInput } from "./barcode";
 
 // SWR fetcher function
 const fetcher = (url, token) =>
@@ -38,12 +39,11 @@ export function Main() {
   const [refreshMap, setRefreshMap] = useState(0);
   const [notifications, setNotification] = useState("");
   const [mapEvent, setMapEvent] = useState(null);
-  const [command, setcommand] = useState({})
-
+  const [command, setcommand] = useState({});
+  const [showDeviceInput, setShowDeviceInput] = useState(false);
   const username = localStorage.getItem("email");
   const password = localStorage.getItem("password");
   const authHeader = "Basic " + btoa(`${username}:${password}`);
-  
 
   // SWR hooks for data fetching
   const {
@@ -408,10 +408,12 @@ export function Main() {
   };
 
   // Funcion para recibir si los iconos de MapComponent fueron tocados
-  const handleOptionMap = (command) =>{
-    setcommand(command)
-  }
-
+  const handleOptionMap = (command) => {
+    setcommand(command);
+    if (command.name === "barcode") {
+      setShowDeviceInput(true);
+    }
+  };
 
   // Funcion para recibir las notificaciones
   const handleNotifications = (titulo, notification) => {
@@ -447,20 +449,27 @@ export function Main() {
 
   const [refreshInterval, setRefreshInterval] = useState(30000); // 30 segundos por defecto
 
-useEffect(() => {
-  const intervalId = setInterval(() => {
-    // Actualizar dispositivos y posiciones
-    mutateDevices();
-    fetchLocations(devices);
-    
-    // Si hay un dispositivo específico seleccionado, actualizar su ruta
-    if (deviceName) {
-      mutateDeviceRoute();
-    }
-  }, refreshInterval);
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      // Actualizar dispositivos y posiciones
+      mutateDevices();
+      fetchLocations(devices);
 
-  return () => clearInterval(intervalId);
-}, [refreshInterval, devices, deviceName, mutateDevices, mutateDeviceRoute, fetchLocations]);
+      // Si hay un dispositivo específico seleccionado, actualizar su ruta
+      if (deviceName) {
+        mutateDeviceRoute();
+      }
+    }, refreshInterval);
+
+    return () => clearInterval(intervalId);
+  }, [
+    refreshInterval,
+    devices,
+    deviceName,
+    mutateDevices,
+    mutateDeviceRoute,
+    fetchLocations,
+  ]);
 
   const currentLatitude =
     devices && devices.length > 0 ? lat[devices[0].name] : null;
@@ -491,6 +500,12 @@ useEffect(() => {
           commands={handleOptionMap}
         />
       </div>
+      {showDeviceInput && (
+        <DeviceNameInput 
+          data={command.data}
+          onClose={() => setShowDeviceInput(false)}
+        />
+      )}
       <div className="board">
         <FloatingBoard
           handleNotifications={handleNotifications}

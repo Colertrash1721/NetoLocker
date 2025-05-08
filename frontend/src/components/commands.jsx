@@ -8,7 +8,11 @@ export default function Commands({ devices = [], selectedDevice = "", Allcommand
 
     useEffect(() => {
       if (selectedDevice && Object.keys(selectedDevice).length !== 0) {
-        setdevicesSelected(selectedDevice.data.name);
+        if (selectedDevice?.data?.name) {
+          setdevicesSelected(selectedDevice.data.name);
+        } else if (selectedDevice?.name) {
+          setdevicesSelected(selectedDevice.name);
+        }
       }
     }, [selectedDevice]);
 

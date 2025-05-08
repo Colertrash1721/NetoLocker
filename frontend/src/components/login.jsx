@@ -4,7 +4,7 @@ import { LoginFail, LoginSucess } from "./alerts";
 import { useNavigate } from "react-router-dom";
 
 export function Login() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [sucess, setSucessText] = useState("");
@@ -16,7 +16,7 @@ export function Login() {
 
     try {
       const formData = new URLSearchParams();
-      formData.append("username", username);
+      formData.append("username", email);
       formData.append("password", password);
       console.log(process.env.REACT_APP_MY_BACKEND_API);
       const response = await fetch(`${process.env.REACT_APP_MY_BACKEND_API}/auth/login`, {
@@ -32,11 +32,13 @@ export function Login() {
 
       if (response.ok) {
         localStorage.setItem("token", data.access_token);
-        localStorage.setItem("email", username);
+        localStorage.setItem("email", email);
+        localStorage.setItem("username", data.user.name);
         localStorage.setItem("password", password);
         setSucessText("Usuario logeado correctamente");
         setTimeout(() => navigate("/dashboardmain"), 3000);
         console.log(data);
+        
       } else {
         setErrorMessage(data.message);
       }
@@ -77,8 +79,8 @@ export function Login() {
         <input
           type="text"
           placeholder="User"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <input
           type="password"

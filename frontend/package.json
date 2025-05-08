@@ -11,6 +11,7 @@
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/express": "^4.17.21",
+    "@zxing/library": "^0.21.3",
     "axios": "^1.8.3",
     "boxicons": "^2.1.4",
     "class-transformer": "^0.5.1",

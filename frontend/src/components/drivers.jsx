@@ -60,7 +60,10 @@ export default function Drivers({ drivers = [], devices = [], selectDevice = "" 
       
       await axios.post(
         `${process.env.REACT_APP_MY_BACKEND_API}/device/assign-driver`,
-        { driverId: selectedDriver, deviceName: selectedDevice },
+        { driverId: selectedDriver, 
+          deviceName: selectedDevice,
+          username: localStorage.getItem("email"),
+        password: localStorage.getItem("password") },
         {
           headers: {
             "Content-Type": "application/json",

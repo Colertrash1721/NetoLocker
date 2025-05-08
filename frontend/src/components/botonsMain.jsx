@@ -14,16 +14,19 @@ export const BotonsMain = ({
       <Botones
         Name="botonsMain"
         name="Establecer ruta"
+        icon="bx bx-car"
         onClick={onSetRoute}
       />
       <Botones
         Name="botonsMain"
         name="Guardar ruta"
+        icon="bx bx-spreadsheet"
         onClick={saveCRDatabase}
       />
       <Botones
         Name="botonsMain"
         name="Establecer RC"
+        icon="bx bx-spreadsheet"
         onClick={onSaveRoute}
       />
       <select

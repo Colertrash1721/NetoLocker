@@ -12,6 +12,66 @@ import Swal from "sweetalert2";
 
 const Libraries = ["geometry", "places"];
 
+const DeviceInfoWindow = ({
+  device,
+  onClose,
+  commands,
+  devicesLat,
+  devicesLon,
+}) => {
+  if (!device || !devicesLat || !devicesLon) return null;
+
+  const lat = devicesLat[device.name]
+    ? parseFloat(devicesLat[device.name])
+    : null;
+  const lng = devicesLon[device.name]
+    ? parseFloat(devicesLon[device.name])
+    : null;
+
+  if (lat === null || lng === null) return null;
+
+  return (
+    <InfoWindow position={{ lat, lng }} onCloseClick={onClose}>
+      <div style={{ padding: "8px" }}>
+        <h3
+          style={{
+            margin: "0 0 8px 0",
+            paddingBottom: "4px",
+            borderBottom: "1px solid #444",
+            fontSize: "16px",
+          }}
+        >
+          {device.name}
+        </h3>
+        <div className="infoWindow">
+          <div className="group">
+            <p>{`Id:`}</p>
+            <p>{`${device.id}`}</p>
+          </div>
+          <div className="group">
+            <p>{`Deshabilitado:`}</p>
+            <p>{`${device.disabled}`}</p>
+          </div>
+          <div className="group">
+            <p>{`Estado:`}</p>
+            <p>{`${device.status}`}</p>
+          </div>
+          <div className="group-icons">
+            <i
+              className="bx bx-qr-scan"
+              onClick={() => commands({ name: "barcode", data: device })}
+            ></i>
+            <i
+              className="bx bx-terminal"
+              onClick={() => commands({ name: "command", data: device })}
+            ></i>
+          </div>
+        </div>
+      </div>
+    </InfoWindow>
+  );
+};
+
 const MapComponent = ({
   latitude,
   longitude,
@@ -25,7 +85,7 @@ const MapComponent = ({
   devicesLon,
   routes,
   onEvent,
-  commands
+  commands,
 }) => {
   // Estados del mapa y rutas
   const [route, setRoute] = useState([]);
@@ -41,7 +101,6 @@ const MapComponent = ({
   const [map, setMap] = useState(null);
   const [arrivedDevices, setArrivedDevices] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState(null);
-
 
   // Estado para controlar el centro del mapa
   const defaultCenter = { lat: 18.488843, lng: -69.986673 }; // Coordenadas por defecto (Santo Domingo)
@@ -446,8 +505,8 @@ const MapComponent = ({
     [deviceRoutes, directionsService, routes, calculateRoute, onSetRoute]
   );
 
-  const handleMarkerClick = (marker) => {
-    setSelectedMarker(marker);
+  const handleMarkerClick = (device) => {
+    setSelectedMarker(device);
   };
 
   // Efectos para manejar puntos de inicio/fin
@@ -504,14 +563,6 @@ const MapComponent = ({
           closestDistance = distance;
         }
       });
-
-      if (deviceName !== null && closestDistance > distanceThreshold) {
-        Swal.fire({
-          title: "Peligro",
-          text: `Dispositivo ${deviceName} fuera de ruta`,
-          icon: "warning",
-        });
-      }
       return;
     }
 
@@ -789,7 +840,7 @@ const MapComponent = ({
                       lng: (deviceRoute.start.lng + deviceRoute.end.lng) / 2,
                     }}
                     icon={{
-                      url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                      url: "https://maps.google.com/mapfiles/kml/shapes/truck.png",
                       scaledSize: new window.google.maps.Size(25, 25),
                     }}
                   />
@@ -800,60 +851,32 @@ const MapComponent = ({
           {/* Marcadores de todos los dispositivos */}
           {allDevices?.map((device) => {
             const { lat, lng } = getValidCoordinates(device);
-            if (!lat || !lng) return null;           
+            if (!lat || !lng) return null;
+
             return (
-              <>
+              <React.Fragment key={`device-${device.id}`}>
                 <Marker
-                  key={`marker-${device.id}`}
                   position={{ lat, lng }}
                   label={{ text: device.name, className: "marker-label-dark" }}
                   title={device.name}
                   icon={{
                     url: offRouteDevices.includes(device.id)
-                      ? "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
-                      : "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                      ? "https://maps.google.com/mapfiles/kml/pal4/icon23.png"
+                      : "https://maps.google.com/mapfiles/kml/shapes/truck.png",
                     scaledSize: new window.google.maps.Size(30, 30),
                   }}
-                  onClick={() => handleMarkerClick(device.id)}
+                  onClick={() => handleMarkerClick(device)}
                 />
-                {selectedMarker === device.id && (
-                  <InfoWindow
-                    position={{ lat, lng }}
-                    onCloseClick={() => setSelectedMarker(null)}
-                  >
-                    <>
-                      <h3
-                        style={{
-                          margin: "0 0 8px 0",
-                          paddingBottom: "4px",
-                          borderBottom: "1px solid #444",
-                          fontSize: "16px",
-                        }}
-                      >
-                        {device.name}
-                      </h3>
-                        <div className="infoWindow">
-                          <div className="group">
-                            <p>{`Id:`}</p>
-                            <p>{`${device.id}`}</p>
-                          </div>
-                          <div className="group">
-                            <p>{`Desabilitado:`}</p>
-                            <p>{`${device.disabled}`}</p>
-                          </div>
-                          <div className="group">
-                            <p>{`Estado:`}</p>
-                            <p>{`${device.status}`}</p>
-                          </div>
-                          <div className="group-icons">
-                          <i className='bx bx-qr-scan' onClick={() => commands({name: "settings", data:device })}></i>
-                          <i className='bx bx-terminal' onClick={() => commands({name: "command", data:device })}></i>
-                          </div>
-                        </div>
-                    </>
-                  </InfoWindow>
+                {selectedMarker?.id === device.id && (
+                  <DeviceInfoWindow
+                    device={device}
+                    onClose={() => setSelectedMarker(null)}
+                    commands={commands}
+                    devicesLat={devicesLat}
+                    devicesLon={devicesLon}
+                  />
                 )}
-              </>
+              </React.Fragment>
             );
           })}
 
@@ -925,18 +948,33 @@ const MapComponent = ({
 
           {/* Dispositivo seleccionado */}
           {latitude && longitude && params && (
-            <Marker
-              position={{
-                lat: parseFloat(latitude),
-                lng: parseFloat(longitude),
-              }}
-              label={{ text: deviceName, className: "marker-label-dark" }}
-              title={deviceName}
-              icon={{
-                url: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
-                scaledSize: new window.google.maps.Size(40, 40),
-              }}
-            />
+            <>
+              <Marker
+                position={{
+                  lat: parseFloat(latitude),
+                  lng: parseFloat(longitude),
+                }}
+                label={{ text: deviceName, className: "marker-label-dark" }}
+                title={deviceName}
+                icon={{
+                  url: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
+                  scaledSize: new window.google.maps.Size(40, 40),
+                }}
+                onClick={() => {
+                  const device = allDevices?.find((d) => d.name === deviceName);
+                  if (device) handleMarkerClick(device);
+                }}
+              />
+              {selectedMarker?.name === deviceName && (
+                <DeviceInfoWindow
+                  device={selectedMarker}
+                  onClose={() => setSelectedMarker(null)}
+                  commands={commands}
+                  devicesLat={devicesLat}
+                  devicesLon={devicesLon}
+                />
+              )}
+            </>
           )}
           {startPoint && (
             <Marker

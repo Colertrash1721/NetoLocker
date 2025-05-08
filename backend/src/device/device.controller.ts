@@ -82,10 +82,12 @@ export class DeviceController {
   }
   @Post('assign-driver')
   async assignDriver(
-    @Body() body: { deviceName: string; driverId: any }
+    @Body() body: { deviceName: string; driverId: any, username: string, password: string }
   ) {
     try {
-      const { deviceName, driverId } = body;
+      console.log("holaaaa", body);
+      
+      const { deviceName, driverId, username, password } = body;
       if (!deviceName || !driverId) {
         throw new HttpException(
           'No se debe dejar campos vacíos',
@@ -95,6 +97,8 @@ export class DeviceController {
       const result = await this.DeviceService.assignDriverToDevice(
         deviceName,
         driverId,
+        username,
+        password,
       );
       return { success: true, data: result };
     } catch (error) {
@@ -126,6 +130,51 @@ export class DeviceController {
     } catch (error) {
       throw new HttpException(
         error.message || 'Error al asignar el comando al dispositivo',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Post('owner')
+  async assignOwner(@Body() body: {deviceName: string, owner: string}){
+    try {
+      const { deviceName, owner } = body;
+      if (!deviceName || !owner) {
+        throw new HttpException(
+          'No se debe dejar campos vacíos',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      const result = await this.DeviceService.asignOwner(
+        deviceName, owner
+      )
+      return { success: true, data: result };
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Error al asignar el portador',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Post('events/:deviceId')
+  async getEvents(
+    @Param('deviceId') deviceId: number,
+    @Body() body: {data: any}) {
+    try {
+      const { data } = body;
+      console.log(data);
+      
+      
+      if (!deviceId) {
+        throw new HttpException(
+          'No se debe dejar campos vacíos',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      const result = await this.DeviceService.assignEvents(deviceId, data)
+      // return { success: true, data: result };
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Error al obtener los eventos',
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
