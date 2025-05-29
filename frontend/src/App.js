@@ -1,10 +1,10 @@
 import "./App.css";
-import { LoginSession } from "./components/LoginSession";
+import { LoginSession } from "./pages/LoginSession";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { ResetPassword } from "./components/resetPassword";
-import { Main } from "./components/main";
-import { AddDevice } from "./components/adddevice";
+import { Main } from "./pages/main";
 import "boxicons/css/boxicons.min.css";
+import TraccarMap from "./pages/gueest";
+import ShortLink from "./components/shortLInk";
 
 function App() {
   return (
@@ -14,10 +14,11 @@ function App() {
           <Route path="/" element={<LoginSession />} />
           <Route path="*" element={<LoginSession />} />
           <Route path="/dashboardmain" element={<Main />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/addDevice" element={<AddDevice />} />
           <Route path="/dashboardmain/:name" element={<Main />} />
           <Route path="/dashboardmain/:name/:id" element={<Main />} />
+          <Route path="/shortLink" element={<ShortLink />} />
+
+          <Route path="/shortLink/token/:token" element={<TraccarMap />} />
         </Routes>
       </BrowserRouter>
     </div>

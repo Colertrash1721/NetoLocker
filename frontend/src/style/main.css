@@ -18,6 +18,7 @@
   --color-danger: #ff0000;
   --color-gray: #919191;
   --color-border: rgb(163, 162, 162);
+  --color-light-dark-bg: #e2dfd3;
 
   /* Shadow Variables */
   --input-box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
@@ -370,7 +371,6 @@ body {
   grid-area: nombre;
   margin-right: var(--spacing-xlarge);
 }
-
 .alertGPSback .nameAlert {
   display: flex;
   justify-content: space-between;
@@ -378,15 +378,20 @@ body {
   font-size: 15px;
   padding-top: var(--spacing-small);
 }
+.alertGPSback .nameAlert h2 {
+  margin: 0;
+  padding: 0;
+}
 .alertGPSback .options {
-  margin-top: 1em;
+  margin-top: 0.3em;
 }
 .alertGPSback .options form {
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  justify-content: center;
 }
 .alertGPSback .options form select {
-  width: 90%;
+  width: 100%;
   height: 45px;
   padding: var(--input-padding);
   outline: none;
@@ -396,11 +401,68 @@ body {
   background-color: var(--color-white);
   box-shadow: var(--card-shadow);
 }
-.alertGPSback .nameAlert h2 {
+.alertGPSback .selectEnter,
+.alertGPSback .selectExit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 45%;
+  margin-top: var(--spacing-small);
+}
+.alertGPSback .selectedOptions {
+  text-align: left;
+  height: 1rem;
+  overflow-y: scroll;
+  margin-top: var(--spacing-small);
+}
+.alertGPSback .selectedOptions {
+  text-align: left;
+  height: 1.4em;
+  overflow-y: scroll;
+  margin-top: var(--spacing-small);
+  width: 100%;
+  background-color: var(--color-light-tertiary);
+}
+.alertGPSback .selectedOptions .selectedOption {
+  display: flex;
+  padding: 0 var(--spacing-small);
+  justify-content: space-between;
+  width: calc(100% - 2 * var(--spacing-small));
+}
+.alertGPSback .selectedOptions .selectedOption p {
+  font-size: var(--font-size-medium);
   margin: 0;
-  padding: 0;
+}
+.alertGPSback .selectedOptions .selectedOption button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.alertGPSback button[type="submit"] {
+  margin-top: 5px;
+  position: relative;
+  width: 10vw;
+  height: 28px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-gradient-start) 0%,
+    var(--color-primary-gradient-end) 100%
+  );
+  color: var(--color-white);
+  font-size: var(--font-size-medium);
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: transparent;
+  overflow: hidden;
 }
 
+.selectOptions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
 .distancia {
   display: flex;
   justify-content: left;
@@ -840,6 +902,120 @@ video {
   display: none;
 }
 
+/* Short Link */
+.shortContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: var(--spacing-xlarge);
+  background-color: var(--color-light-bg);
+  height: 100vh;
+}
+.shortContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xlarge);
+  height: 50%;
+  width: 80%;
+}
+.shortCard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-xlarge);
+  flex-direction: column;
+  background-color: var(--color-light-bg);
+  height: 100%;
+  box-shadow: var(--card-shadow);
+}
+.shortCard .input-group{
+  width: 80%;
+  position: relative;
+}
+.shortCard .input-group span{
+  position: absolute;
+  font-size: var(--font-size-small);
+  color: var(--color-black);
+  margin-bottom: var(--spacing-small);
+  top: 40%;
+  left: 10%;
+  transition: all var(--transition-fast);
+  pointer-events: none;
+}
+.shortCard .hadContent span{
+  top: -10%;
+  left: 5%;
+  transition: all var(--transition-fast);
+  pointer-events: none;
+}
+.shortCard .input-group input {
+  display: flex;
+  width: 100%;
+  height: 45px;
+  box-sizing: border-box;
+  padding: var(--input-padding);
+  outline: none;
+  border: none;
+  transition: padding var(--transition-medium);
+  background-color: transparent;
+  background-color: var(--color-white);
+  box-shadow: var(--card-shadow);
+}
+.shortCard .input-group input:focus {
+  box-shadow: var(--hover-card-shadow);
+  transition: all var(--transition-fast);
+}
+.shortCard .input-group input:focus + span{
+  top: -10%;
+  left: 5%;
+  transition: all var(--transition-fast);
+  pointer-events: none;
+}
+.shortCard button{
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--input-border-radius);
+  font-size: var(--font-size-xlarge);
+  cursor: pointer;
+  padding: var(--spacing-medium);
+  transition: background-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+.shortCard button:hover{
+  background: var(--color-primary-gradient-start);
+  box-shadow: var(--hover-card-shadow);
+}
+.shortButtons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-xlarge);
+}
+.shortButtons button {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--input-border-radius);
+  font-size: var(--font-size-xlarge);
+  cursor: pointer;
+  padding: var(--spacing-medium);
+  width: 100%;
+  transition: background-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+.shortButtons button:hover {
+  background: var(--color-primary-gradient-start);
+  box-shadow: var(--hover-card-shadow);
+}
+.bx-eye{
+  color: white;
+  font-size: 20px;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+}
 @keyframes fadeOutUp {
   from {
     opacity: 1;

@@ -49,4 +49,5 @@ export class AuthController {
   async resetPass(@Param('token') token: string, @Body() body: ResetPassword) {
     return await this.AuthService.resetPass(token, body.newPassword);
   }
+
 }

@@ -3,6 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 export default function Drivers({ drivers = [], devices = [], selectDevice = "" }) {
+  const user = localStorage.getItem("username");
   const [asignDriver, setAsignDriver] = useState(true);
   const [driverName, setDriverName] = useState("");
   const [driverId, setDriverId] = useState("");
@@ -25,7 +26,7 @@ export default function Drivers({ drivers = [], devices = [], selectDevice = "" 
     try {
       await axios.post(
         `${process.env.REACT_APP_MY_BACKEND_API}/device/drivers`,
-        { driverName, driverId },
+        { driverName, driverId, user },
         {
           headers: {
             "Content-Type": "application/json",

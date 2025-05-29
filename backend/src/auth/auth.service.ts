@@ -22,6 +22,38 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  authHeader(username: string, password: string): string {
+    const authHeader = 'Basic ' + btoa(`${username}:${password}`);
+
+    return authHeader;
+  }
+
+  async validateAdmin(username: string){
+    if (!username) {
+      throw new UnauthorizedException('Username is required');
+    }
+
+    try {
+      const response = await axios.get(`${this.traccarApiUrl}/users`, {
+        headers: {
+          Authorization: `Bearer ${this.traccarApiToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const users = response.data;
+      const user = users.find((u: any) => u.name === username);
+
+      if (!user || !user.administrator) {
+        throw new UnauthorizedException('User not found or not an administrator');
+      }
+
+      return user;
+    } catch (error) {
+      throw new UnauthorizedException('Error validating administrator');
+    }
+  }
+
   private async sendPasswordResetEmail(email: string, token: string) {
     // Configuración de SMTP para Office 365
     const transporter = nodemailer.createTransport({
@@ -42,10 +74,10 @@ export class AuthService {
         family: 4, // Usar IPv4
       },
     });
-  
+
     // Enlace para restablecer la contraseña
     const resetLink = `http://localhost:3001/reset-password/${token}`;
-  
+
     // Configuración del correo electrónico
     const mailOptions = {
       from: 'info@netotrack.com', // Correo remitente
@@ -54,7 +86,7 @@ export class AuthService {
       text: `Haz clic en el siguiente enlace para cambiar tu contraseña: ${resetLink}`, // Cuerpo del correo (texto plano)
       html: `<p>Haz clic en el siguiente enlace para cambiar tu contraseña: <a href="${resetLink}">${resetLink}</a></p>`, // Cuerpo del correo (HTML)
     };
-  
+
     try {
       // Enviar el correo electrónico
       await transporter.sendMail(mailOptions);
@@ -66,6 +98,7 @@ export class AuthService {
   async getAllusers() {
     return await this.loginRepository.find();
   }
+
   async getOneUser(username: string) {
     const foundUser = await this.loginRepository.findOne({
       where: {
@@ -80,6 +113,7 @@ export class AuthService {
     }
     return { usuario: foundUser };
   }
+
   async login(username: string, password: string): Promise<any> {
     if (!username || !password) {
       throw new UnauthorizedException('You cannot send empty fields');
@@ -112,11 +146,12 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
   }
+
   async changepass(emailUser: string): Promise<any> {
     if (!emailUser) {
       throw new UnauthorizedException('You cannot send empty fields');
     }
-  
+
     try {
       // Obtener la lista de usuarios desde Traccar
       const usersResponse = await axios.get(`${this.traccarApiUrl}/users`, {
@@ -125,34 +160,38 @@ export class AuthService {
         },
       });
       // Buscar el usuario por email en la lista
-    const usuario = usersResponse.data.find((u) => u.email === emailUser);
-    if (!usuario) {
-      throw new UnauthorizedException('Usuario no encontrado');
-    }
+      const usuario = usersResponse.data.find((u) => u.email === emailUser);
+      if (!usuario) {
+        throw new UnauthorizedException('Usuario no encontrado');
+      }
 
       // Generar un token JWT con el ID del usuario
       const payload = { id: usuario.id };
       const token = this.jwtService.sign(payload, { expiresIn: '1h' });
-  
+
       // Enviar el correo electrónico con el enlace para cambiar la contraseña
       await this.sendPasswordResetEmail(emailUser, token);
-  
+
       return {
-        message: 'Se ha enviado un correo con el enlace para cambiar tu contraseña',
+        message:
+          'Se ha enviado un correo con el enlace para cambiar tu contraseña',
         usuario,
       };
     } catch (error) {
       throw new UnauthorizedException('Datos incorrectos');
     }
   }
+
   async resetPass(token: string, newPassword: string): Promise<any> {
     if (!token || !newPassword) {
-      throw new UnauthorizedException('Token y nueva contraseña son requeridos');
+      throw new UnauthorizedException(
+        'Token y nueva contraseña son requeridos',
+      );
     }
     const dataAdmin = {
       email: process.env.My_Traccar_Email,
-      password: process.env.My_Traccar_Pass
-    }
+      password: process.env.My_Traccar_Pass,
+    };
     try {
       // Decodificar el token JWT
       const decoded = this.jwtService.verify(token);
@@ -168,15 +207,17 @@ export class AuthService {
       if (!user) {
         throw new UnauthorizedException('Usuario no encontrado en Traccar');
       }
-  
+
       // Cambiar la contraseña en Traccar
       const response = await axios.put(
         `${this.traccarApiUrl}/users/${user.id}`,
-        { id: userId,
+        {
+          id: userId,
           name: user.name,
           email: user.email,
           password: newPassword,
-          administrator: user.administrator },
+          administrator: user.administrator,
+        },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -184,15 +225,21 @@ export class AuthService {
           },
         },
       );
-  
+
       if (response.status === 200) {
         return { message: 'Contraseña actualizada en Traccar' };
       } else {
-        throw new UnauthorizedException('Error al cambiar la contraseña en Traccar');
+        throw new UnauthorizedException(
+          'Error al cambiar la contraseña en Traccar',
+        );
       }
     } catch (error) {
-      console.error('Error en resetPass:', error.response ? error.response.data : error.message);
+      console.error(
+        'Error en resetPass:',
+        error.response ? error.response.data : error.message,
+      );
       throw new UnauthorizedException('Token inválido o expirado');
     }
   }
+
 }

@@ -8,7 +8,10 @@ import { Login } from './auth/auth.entity';
 import { Concurrent } from './routes/entities/concurrent.entity';
 import { GeofencesModule } from './geofences/geofences.module';
 import { ReportModule } from './report/report.module';
+import { Event } from './events/entities/event.entity';
 import { PrinterModule } from './printer/printer.module';
+import { EventsModule } from './events/events.module';
+import { ShortLinkModule } from './short-link/short-link.module';
 
 @Module({
   imports: [
@@ -19,7 +22,7 @@ import { PrinterModule } from './printer/printer.module';
       password: 'root',
       port: 3306,
       database: 'netotrack',
-      entities: [Routes, Login, Concurrent],
+      entities: [Routes, Login, Concurrent, Event],
       synchronize: false,
     }),
     AuthModule,
@@ -27,6 +30,8 @@ import { PrinterModule } from './printer/printer.module';
     RoutesModule,
     GeofencesModule,
     ReportModule,
+    EventsModule,
+    ShortLinkModule,
   ]
 })
 export class AppModule {}

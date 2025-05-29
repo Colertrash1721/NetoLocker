@@ -1,52 +1,15 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import Swal from "sweetalert2";
+// components/Commands.jsx
+import React from "react";
+import {useCommandAssignment} from "../hooks/useCommandAssigment";
 
-export default function Commands({ devices = [], selectedDevice = "", Allcommands = [] }) {
-  const [command, setcommand] = useState();
-  const [devicesSelected, setdevicesSelected] = useState();
-
-    useEffect(() => {
-      if (selectedDevice && Object.keys(selectedDevice).length !== 0) {
-        if (selectedDevice?.data?.name) {
-          setdevicesSelected(selectedDevice.data.name);
-        } else if (selectedDevice?.name) {
-          setdevicesSelected(selectedDevice.name);
-        }
-      }
-    }, [selectedDevice]);
-
-  const assignCommand = async(e) => {
-    e.preventDefault();
-    try {
-        await axios.post(
-          `${process.env.REACT_APP_MY_BACKEND_API}/device/assing-command`,
-          { deviceName: devicesSelected, commandDescription: command },
-          {
-            headers: {
-              "Content-Type": "application/json"
-            },
-          }
-        );
-  
-        Swal.fire({
-          title: "Éxito",
-          text: "Comando agregado exitosamente",
-          icon: "success",
-        });
-  
-        setcommand("");
-        setdevicesSelected("");
-      } catch (error) {
-        const errorMessage =
-          error.response?.data?.message || "Error al agregar conductor";
-        Swal.fire({
-          title: "Error",
-          text: errorMessage,
-          icon: "error",
-        });
-      }
-  };
+export default function Commands({ devices = [], selectedDevice = {}, Allcommands = [] }) {
+  const {
+    command,
+    setCommand,
+    devicesSelected,
+    setDevicesSelected,
+    assignCommand,
+  } = useCommandAssignment(selectedDevice);
 
   return (
     <div className="assignCommand">
@@ -54,7 +17,7 @@ export default function Commands({ devices = [], selectedDevice = "", Allcommand
         <p>Asignar comando</p>
         <select
           name="commands"
-          onChange={(e) => setcommand(e.target.value)}
+          onChange={(e) => setCommand(e.target.value)}
           value={command}
           required
         >
@@ -67,7 +30,7 @@ export default function Commands({ devices = [], selectedDevice = "", Allcommand
         </select>
         <select
           name="devices"
-          onChange={(e) => setdevicesSelected(e.target.value)}
+          onChange={(e) => setDevicesSelected(e.target.value)}
           value={devicesSelected}
           required
         >
@@ -83,3 +46,4 @@ export default function Commands({ devices = [], selectedDevice = "", Allcommand
     </div>
   );
 }
+// This code defines a React component that allows users to assign commands to devices.

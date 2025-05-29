@@ -56,11 +56,13 @@ export class RoutesController {
   @Put(':deviceName')
   async updateRoute(
     @Param('deviceName') deviceName: string,
-    @Body() newRouteData: any,
+    @Body() body: {newRouteData: any, user: any},
   ) {
+    const { newRouteData, user } = body;
     return await this.routesService.UpdateDraggableRoute(
       deviceName,
       newRouteData,
+      user
     );
   }
   @Get('concurrent')

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { Routes } from 'src/routes/entities/route.entity';
 import { Repository } from 'typeorm';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class TraccarService {
@@ -10,23 +11,94 @@ export class TraccarService {
   private readonly TRACCAR_AUTH_TOKEN = process.env.My_Token;
 
   constructor(
-    @InjectRepository(Routes) private routeRepository: Repository<Routes>,
+    @InjectRepository(Routes) private routeRepository: Repository<Routes>, private readonly authService: AuthService,
   ) {}
 
-  authHeader(username: string, password: string) : string {
-    const authHeader = "Basic " + btoa(`${username}:${password}`);
+  authHeader(username: string, password: string): string {
+    const authHeader = 'Basic ' + btoa(`${username}:${password}`);
 
     return authHeader;
   }
 
-  async addDevice(deviceData: any) {
-    const url = `${this.TRACCAR_API_URL}/devices`;
-    const headers = {
+  private getHeaders(username?: string, password?: string) {
+    if (username && password) {
+      const header = this.authHeader(username, password);
+      return {
+        Authorization: `${header}`,
+        'Content-Type': 'application/json',
+      };
+    }
+  
+    return {
       Authorization: `Bearer ${this.TRACCAR_AUTH_TOKEN}`,
       'Content-Type': 'application/json',
     };
+  }
+  
+  async foundDeviceById(deviceId: number, headers?: any) {
+    const urlDevice = `${this.TRACCAR_API_URL}/devices/${deviceId}`;
+    
+    try {
+      const response = await axios.get(urlDevice, { headers });
+      const device = response.data;
+      const foundDevice = await this.routeRepository.findOne({
+        where: { device_Name: device.name },
+      });
+
+      return {foundDevice, device};
+
+    } catch (error) {
+      throw new HttpException(
+        `Error al encontrar dispositivo: ${error.response?.data?.message || error.message}`,
+        error.response?.status || HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async foundDeviceByName(deviceName: string, headers: any) {
+    try {
+      const deviceResponse = await axios.get(
+        `${this.TRACCAR_API_URL}/devices`,
+        { headers },
+      );
+
+      const devices = deviceResponse.data;
+      const device = devices.find((device: any) => device.name === deviceName);
+
+      return device;
+
+    } catch (error) {
+      throw new HttpException(
+        `Error al encontrar dispositivo: ${error.response?.data?.message || error.message}`,
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async foundDriversById(driverId: any, headers: any) {
+    try {
+      const driverResponse = await axios.get(
+        `${this.TRACCAR_API_URL}/drivers`,
+        { headers },
+      );
+      const drivers = driverResponse.data;
+      const driver = drivers.find((d: any) => d.uniqueId === driverId);
+
+      return driver;
+    } catch (error) {
+      throw new HttpException(
+        `Error al encontrar conductor: ${error.response?.data?.message || error.message}`,
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async addDevice(deviceData: any, user: string) {
+    const url = `${this.TRACCAR_API_URL}/devices`;
+    const headers = this.getHeaders();
 
     try {
+      await this.authService.validateAdmin(user);
       const response = await axios.post(url, deviceData, { headers });
       return response.data;
     } catch (error) {
@@ -37,13 +109,11 @@ export class TraccarService {
     }
   }
 
-  async deleteDevice(deviceId: string) {
+  async deleteDevice(deviceId: string, user: string) {
     const url = `${this.TRACCAR_API_URL}/devices/${deviceId}`;
-    const headers = {
-      Authorization: `Bearer ${this.TRACCAR_AUTH_TOKEN}`,
-    };
-
+    const headers = this.getHeaders();
     try {
+      await this.authService.validateAdmin(user);
       const response = await axios.delete(url, { headers });
       return response.data;
     } catch (error) {
@@ -54,19 +124,11 @@ export class TraccarService {
     }
   }
 
-  async deleteRoute(deviceId: number) {
-    const urlDevice = `${this.TRACCAR_API_URL}/devices/${deviceId}`;
-    const headers = {
-      Authorization: `Bearer ${this.TRACCAR_AUTH_TOKEN}`,
-      'Content-Type': 'application/json',
-    };
-
+  async deleteRoute(deviceId: number, user: string) {
+    const headers = this.getHeaders();
     try {
-      const response = await axios.get(urlDevice, { headers });
-      const device = response.data;
-      const foundDevice = await this.routeRepository.findOne({
-        where: { device_Name: device.name },
-      });
+      await this.authService.validateAdmin(user);
+      const {foundDevice, device} = await this.foundDeviceById(deviceId, headers);
 
       if (foundDevice) {
         console.log(`Eliminando ruta para el dispositivo ${device.name}`);
@@ -81,22 +143,14 @@ export class TraccarService {
     }
   }
 
-  async handleEndRoute(deviceName: string, deviceId: number) {
+  async handleEndRoute(deviceName: string, deviceId: number, user: string) {
     const urlDevice = `${this.TRACCAR_API_URL}/devices/${deviceId}`;
-    const headers = {
-      Authorization: `Bearer ${this.TRACCAR_AUTH_TOKEN}`,
-      'Content-Type': 'application/json',
-    };
+    const headers = this.getHeaders();
 
     try {
-      // 1. Obtener información del dispositivo
-      const response = await axios.get(urlDevice, { headers });
-      const device = response.data;
-
-      // 2. Eliminar la ruta asociada (si existe)
-      const foundDevice = await this.routeRepository.findOne({
-        where: { device_Name: device.name },
-      });
+      await this.authService.validateAdmin(user);
+      await this.authService.validateAdmin(user);
+      const {foundDevice, device} = await this.foundDeviceById(deviceId, headers);
 
       if (!foundDevice) {
         return `No se encontró el dispositivo ${device.name}`;
@@ -168,14 +222,12 @@ export class TraccarService {
     }
   }
 
-  async addDriver(driverName: string, driverId: string) {
+  async addDriver(driverName: string, driverId: string, user: string) {
     const url = `${this.TRACCAR_API_URL}/drivers`;
-    const headers = {
-      Authorization: `Bearer ${this.TRACCAR_AUTH_TOKEN}`,
-      'Content-Type': 'application/json',
-    };
+    const headers = this.getHeaders();
 
     try {
+      await this.authService.validateAdmin(user);
       const response = await axios.post(
         url,
         { name: driverName, uniqueId: driverId },
@@ -190,23 +242,25 @@ export class TraccarService {
     }
   }
 
-  async assignDriverToDevice(deviceName: string, driverId: string, username: string, password: string) {
-    const authHeader = this.authHeader(username, password);
-    
-    const headers = {
-      Authorization: `${authHeader}`,
-      'Content-Type': 'application/json',
-    };
-    
+  async assignDriverToDevice(
+    deviceName: string,
+    driverId: string,
+    username: string,
+    password: string,
+  ) {
+
+    const headers = this.getHeaders(username, password);
+
     try {
+      
       // 1. Obtener todos los dispositivos
-      const deviceResponse = await axios.get(
-        `${this.TRACCAR_API_URL}/devices`,
-        { headers },
-      );
-      console.log({ dispositivo: 'Dispositivo', deviceName, driverId, authHeader });
-      const devices = deviceResponse.data;
-      const device = devices.find((device: any) => device.name === deviceName);
+      const device = await this.foundDeviceByName(deviceName, headers);
+      console.log({
+        dispositivo: 'Dispositivo',
+        deviceName,
+        driverId,
+        headers,
+      });
 
       if (!device) {
         throw new HttpException(
@@ -217,16 +271,10 @@ export class TraccarService {
 
       const deviceIdNumber = device.id;
 
-      console.log("deviceIdNumber", deviceIdNumber);
-      
+      console.log('deviceIdNumber', deviceIdNumber);
 
       // 2. Obtener todos los conductores
-      const driverResponse = await axios.get(
-        `${this.TRACCAR_API_URL}/drivers`,
-        { headers },
-      );
-      const drivers = driverResponse.data;
-      const driver = drivers.find((d: any) => d.uniqueId === driverId);
+      const driver = await this.foundDriversById(driverId, headers);
 
       if (!driver) {
         throw new HttpException(
@@ -266,7 +314,7 @@ export class TraccarService {
           console.log(`Hubo un error borrando los conductores ${error}`);
         }
       }
-      
+
       // 4. Asignar el conductor al dispositivo vía la API de Traccar
       await axios.post(
         `${this.TRACCAR_API_URL}/permissions`,
@@ -276,8 +324,6 @@ export class TraccarService {
         },
         { headers },
       );
-      
-            console.log("holaaaaa");
 
       return {
         success: true,
@@ -293,18 +339,12 @@ export class TraccarService {
       );
     }
   }
-  async assingCommandToDevice(deviceName: string, commandDescription: string) {
-    const headers = {
-      Authorization: `Bearer ${this.TRACCAR_AUTH_TOKEN}`,
-      'Content-Type': 'application/json',
-    };
+
+  async assingCommandToDevice(deviceName: string, commandDescription: string, user: string) {
+    const headers = this.getHeaders();
     try {
-      const deviceResponse = await axios.get(
-        `${this.TRACCAR_API_URL}/devices`,
-        { headers },
-      );
-      const devices = deviceResponse.data;
-      const device = devices.find((device: any) => device.name === deviceName);
+      await this.authService.validateAdmin(user);
+      const device = await this.foundDeviceByName(deviceName, headers);
 
       if (!device) {
         throw new HttpException(
@@ -367,17 +407,12 @@ export class TraccarService {
       );
     }
   }
-  async asignOwner(deviceName: string, owner: string) {
-    const headers = {
-      Authorization: `Bearer ${this.TRACCAR_AUTH_TOKEN}`,
-      'Content-Type': 'application/json',
-    };
+
+  async asignOwner(deviceName: string, owner: string, user: string) {
+    const headers = this.getHeaders();
     try {
-      const response = await axios.get(`${this.TRACCAR_API_URL}/devices`, {
-        headers,
-      });
-      const devices = response.data;
-      const device = devices.find((device: any) => device.name === deviceName);
+      await this.authService.validateAdmin(user);
+      const device = await this.foundDeviceByName(deviceName, headers);
 
       if (!device) {
         throw new HttpException(
@@ -416,54 +451,63 @@ export class TraccarService {
       );
     }
   }
-  async assignEvents(deviceId: number, events: { salida: string[], entrada: string[] }) {
+
+  async assignEvents(
+    deviceId: number,
+    events: { salida: string[]; entrada: string[] },
+  ) {
     // 1. Obtener notificaciones actuales de Traccar (GET)
     const url = `${this.TRACCAR_API_URL}/notifications?deviceId=${deviceId}`;
     const headers = {
-        Authorization: `Bearer ${this.TRACCAR_AUTH_TOKEN}`,
-        'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.TRACCAR_AUTH_TOKEN}`,
+      'Content-Type': 'application/json',
     };
 
     try {
-        const response = await axios.get(url, { headers });
-        const currentNotifications = response.data;
+      const response = await axios.get(url, { headers });
+      const currentNotifications = response.data;
 
-        console.log("Notificaciones actuales:", currentNotifications);
+      console.log('Notificaciones actuales:', currentNotifications);
 
-        // 2. Filtrar notificaciones según events.salida (ej: 'geofenceEnter')
-        const filteredNotifications = currentNotifications.filter(notification => 
-            events.salida.includes(notification.type)
-        );
+      // 2. Filtrar notificaciones según events.salida (ej: 'geofenceEnter')
+      const filteredNotifications = currentNotifications.filter(
+        (notification) => events.salida.includes(notification.type),
+      );
 
-        console.log("Notificaciones filtradas:", filteredNotifications);
+      console.log('Notificaciones filtradas:', filteredNotifications);
 
-        // 3. Actualizar notificadores (ej: agregar 'email' y 'sms' además de 'web')
-        const updatedNotifications = filteredNotifications.map(notification => ({
+      // 3. Actualizar notificadores (ej: agregar 'email' y 'sms' además de 'web')
+      const updatedNotifications = filteredNotifications.map(
+        (notification) => ({
           ...notification,
           notificators: [
-              ...new Set([
-                  ...notification.notificators.split(','), // Divide el string existente
-                  ...events.entrada                       // Agrega los nuevos
-              ])
-          ].join(',') // Convierte a string sin duplicados
-      }));
+            ...new Set([
+              ...notification.notificators.split(','), // Divide el string existente
+              ...events.entrada, // Agrega los nuevos
+            ]),
+          ].join(','), // Convierte a string sin duplicados
+        }),
+      );
 
-        console.log("Notificaciones actualizadas:", updatedNotifications);
+      console.log('Notificaciones actualizadas:', updatedNotifications);
 
-        // 4. Enviar actualización a Traccar (PUT/PATCH)
-        // (Depende de qué soporte la API)
-        const updatePromises = updatedNotifications.map(notification => 
-            axios.put(`${this.TRACCAR_API_URL}/notifications/${notification.id}`, notification, { headers })
-        );
+      // 4. Enviar actualización a Traccar (PUT/PATCH)
+      // (Depende de qué soporte la API)
+      const updatePromises = updatedNotifications.map((notification) =>
+        axios.put(
+          `${this.TRACCAR_API_URL}/notifications/${notification.id}`,
+          notification,
+          { headers },
+        ),
+      );
 
-        await Promise.all(updatePromises);
-        return { success: true, updatedNotifications };
-
+      await Promise.all(updatePromises);
+      return { success: true, updatedNotifications };
     } catch (error) {
-        throw new HttpException(
-            `Error al asignar eventos: ${error.response?.data?.message || error.message}`,
-            error.response?.status || HttpStatus.BAD_GATEWAY,
-        );
+      throw new HttpException(
+        `Error al asignar eventos: ${error.response?.data?.message || error.message}`,
+        error.response?.status || HttpStatus.BAD_GATEWAY,
+      );
     }
-}
+  }
 }

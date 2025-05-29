@@ -5,6 +5,7 @@ import { Routes } from './entities/route.entity';
 import { Concurrent } from './entities/concurrent.entity';
 import { Repository } from 'typeorm';
 import { CreateConcurrentDto } from './dto/create-concurrent.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class RoutesService {
@@ -12,6 +13,7 @@ export class RoutesService {
     @InjectRepository(Routes) private routeRepository: Repository<Routes>,
     @InjectRepository(Concurrent)
     private concurrentRepository: Repository<Concurrent>,
+    private readonly authService: AuthService,
   ) {}
   async createRoute(createRouteDto: CreateRouteDto) {
     try {
@@ -85,8 +87,9 @@ export class RoutesService {
     }
   }
 
-  async UpdateDraggableRoute(deviceName: string, newRouteData: any) {
+  async UpdateDraggableRoute(deviceName: string, newRouteData: any, user: any) {
     try {
+      await this.authService.validateAdmin(user);
       const foundDevice = await this.routeRepository.findOne({
         where: {
           device_Name: deviceName,

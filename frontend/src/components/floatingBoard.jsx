@@ -8,7 +8,7 @@ import axios from "axios";
 import Report from "./report";
 import Drivers from "./drivers";
 import Commands from "./commands";
-import LoadingBoard from "./loadingBoard";
+import LoadingBoard from "../pages/loadingBoard";
 
 export function FloatingBoard({
   handleNotifications,
@@ -25,10 +25,11 @@ export function FloatingBoard({
   const token = process.env.REACT_APP_MY_TOKEN_PASSWORD;
   const navigate = useNavigate();
   const Swal = require("sweetalert2");
+  const user = localStorage.getItem("username");
   const username = localStorage.getItem("email");
   const password = localStorage.getItem("password");
   const authHeader = "Basic " + btoa(`${username}:${password}`);
-  
+
   // Estados para el audio
   const [audioEnabled, setAudioEnabled] = useState(false);
   const soundAlarmRef = useRef(null);
@@ -59,16 +60,16 @@ export function FloatingBoard({
   const [commands, setcommands] = useState({});
   let advise = false;
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Efecto para verificar cuando todos los datos están cargados
   useEffect(() => {
-    const allDataLoaded = 
-      devices.length > 0 && 
-      Object.keys(batteryLevels).length > 0 && 
-      Object.keys(lon).length > 0 && 
-      Object.keys(lat).length > 0 && 
+    const allDataLoaded =
+      devices.length > 0 &&
+      Object.keys(batteryLevels).length > 0 &&
+      Object.keys(lon).length > 0 &&
+      Object.keys(lat).length > 0 &&
       Object.keys(drivers).length > 0;
-    
+
     if (allDataLoaded) {
       setIsLoading(false);
     }
@@ -131,6 +132,7 @@ export function FloatingBoard({
       fetchPowerCut(response.data);
       fetchDriver(response.data);
       fetchEvents(response.data);
+      fetchHandleEvents(response.data);
     } catch (error) {
       console.error("Error al obtener dispositivos:", error);
       setIsLoading(false);
@@ -203,6 +205,34 @@ export function FloatingBoard({
       setAlarms(alarms);
     },
     [token]
+  );
+
+  // Enviar alerta para guardar los eventos al backend
+  const fetchHandleEvents = useCallback(
+    async (devicesList) => {
+      if (!token || devicesList.length === 0) return;
+      for (const device of devicesList) {
+        try {
+          const response = await axios.post(`${process.env.REACT_APP_MY_BACKEND_API}/events`, {
+            deviceId: device.id
+          }, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          console.log(`Evento guardado para ${device.name}:`, response.data, process.env.REACT_APP_MY_BACKEND_API);
+          
+          if (response.status === 200) {
+            console.log(`Evento guardado para ${device.name}`);
+          } else {
+            console.error(`Error al guardar evento para ${device.name}`);
+          }
+        } catch (error) {
+          console.error(`Error al guardar evento para ${device.name}:`, error);
+          setIsLoading(false);
+        }
+      }
+      advise = false;
+    },
+    [token, drivers, handleNotifications]
   );
 
   // Manejar alarma de corte de energía
@@ -318,7 +348,6 @@ export function FloatingBoard({
   const handleSelected = (deviceName) => {
     setSelectedDeviceForDriver(deviceName);
     console.log("Dispositivo seleccionado para conductor:", deviceName);
-    
   };
 
   // Enviar eventos
@@ -334,18 +363,15 @@ export function FloatingBoard({
             Authorization: `Bearer ${process.env.REACT_APP_MY_TOKEN_PASSWORD}`,
           },
         }
-      
       );
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   };
 
   // Manejar el borrar ruta
   const handleDeleteRoute = async (deviceName, deviceId) => {
     try {
       const response = await axios.delete(
-        `${process.env.REACT_APP_MY_BACKEND_API}/device/route/${deviceId}`,
+        `${process.env.REACT_APP_MY_BACKEND_API}/device/route/${deviceId}/${user}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -436,7 +462,7 @@ export function FloatingBoard({
     if (text) {
       try {
         const response = await axios.delete(
-          `${process.env.REACT_APP_MY_BACKEND_API}/device/${text}`,
+          `${process.env.REACT_APP_MY_BACKEND_API}/device/${text}/${user}`,
           {
             headers: { "Content-Type": "application/json" },
           }
@@ -479,7 +505,7 @@ export function FloatingBoard({
   }, [boardCommand]);
 
   if (isLoading) {
-    return <LoadingBoard isLoading={true}/>;
+    return <LoadingBoard isLoading={true} />;
   }
 
   return (
@@ -530,7 +556,7 @@ export function FloatingBoard({
           Activar Sonidos
         </button>
       )}
-      {!isLoading ? <LoadingBoard isLoading={false}/> : null}
+      {!isLoading ? <LoadingBoard isLoading={false} /> : null}
       <header>
         <div className="header-icons">
           <div className="package" onClick={handleMenu}>
@@ -650,13 +676,13 @@ export function FloatingBoard({
           <div className="eliminar" onClick={handleDeleteDevice}>
             <i
               className="bx bx-trash"
-              style={{ color: "white", fontSize: "34px" }}
+              style={{ color: "white", fontSize: "34px", cursor: "pointer" }}
             ></i>
           </div>
           <div className="closeSesion" onClick={handleCloseSession}>
             <i
               className="bx bx-door-open"
-              style={{ color: "white", fontSize: "34px" }}
+              style={{ color: "white", fontSize: "34px", cursor: "pointer" }}
             ></i>
           </div>
         </div>

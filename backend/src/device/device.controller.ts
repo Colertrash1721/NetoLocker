@@ -17,29 +17,32 @@ export class DeviceController {
   constructor(private DeviceService: TraccarService) {}
 
   @Post()
-  async PostDevice(@Body() deviceData: any) {
+  async PostDevice(@Body() body: {deviceData: any, user: string}) {
+    const { deviceData, user } = body;
     try {
-      const result = await this.DeviceService.addDevice(deviceData);
+      const result = await this.DeviceService.addDevice(deviceData, user);
       return { success: true, data: result };
     } catch (error) {
       return { success: false, message: error.message };
     }
   }
 
-  @Delete(':id')
-  async DeleteDevice(@Param('id') id: string) {
+  @Delete(':id/:username')
+  async DeleteDevice(@Param() param: {id: string, username: string}) {
+    const { id, username } = param;
     try {
-      const result = await this.DeviceService.deleteDevice(id);
+      const result = await this.DeviceService.deleteDevice(id, username);
       return { success: true, message: result.message };
     } catch (error) {
       return { success: false, message: error.message };
     }
   }
 
-  @Delete('route/:deviceId')
-  async DeleteRoute(@Param('deviceId') deviceId: number) {
+  @Delete('route/:deviceId/:username')
+  async DeleteRoute(@Param() param:  {deviceId: number, username: string}) {
+    const { deviceId, username } = param;
     try {
-      const result = await this.DeviceService.deleteRoute(deviceId);
+      const result = await this.DeviceService.deleteRoute(deviceId, username);
       console.log(result);
       return { success: true, message: result };
       
@@ -49,9 +52,10 @@ export class DeviceController {
   }
 
   @Post('end-route')
-  async handleEndRoute(@Body() body: { deviceName: string; deviceId: number }) {
+  async handleEndRoute(@Body() body: { deviceName: string; deviceId: number, user: string }) {
+    const { deviceName, deviceId, user } = body;
     try {
-      return await this.DeviceService.handleEndRoute(body.deviceName, body.deviceId);
+      return await this.DeviceService.handleEndRoute(deviceName, deviceId, user);
     } catch (error) {
       throw new HttpException(
         error.message || 'Error al procesar fin de ruta',
@@ -61,9 +65,9 @@ export class DeviceController {
   }
   @Post('drivers')
   async addDriver(
-    @Body('driverName') driverName: string,
-    @Body('driverId') driverId: string,
+    @Body() body: {driverName: string, driverId: string, user: string}
   ) {
+    const { driverName, driverId, user } = body;
     try {
       if (!driverName || !driverId) {
         throw new HttpException(
@@ -71,7 +75,7 @@ export class DeviceController {
           HttpStatus.BAD_REQUEST,
         );
       }
-      const result = await this.DeviceService.addDriver(driverName, driverId);
+      const result = await this.DeviceService.addDriver(driverName, driverId, user);
       return { success: true, data: result };
     } catch (error) {
       throw new HttpException(
@@ -110,10 +114,10 @@ export class DeviceController {
   }
   @Post('assing-command')
   async assingCommandToDevice(
-    @Body() body: { deviceName: string; commandDescription: string }
+    @Body() body: { deviceName: string; commandDescription: string, user: string }
   ){
     try {
-      const { deviceName, commandDescription } = body;
+      const { deviceName, commandDescription, user } = body;
       console.log(deviceName, commandDescription);
       
       if (!deviceName || !commandDescription) {
@@ -125,6 +129,7 @@ export class DeviceController {
       const result = await this.DeviceService.assingCommandToDevice(
         deviceName,
         commandDescription,
+        user
       );
       return { success: true, data: result };
     } catch (error) {
@@ -135,9 +140,9 @@ export class DeviceController {
     }
   }
   @Post('owner')
-  async assignOwner(@Body() body: {deviceName: string, owner: string}){
+  async assignOwner(@Body() body: {deviceName: string, owner: string, user: string}) {
     try {
-      const { deviceName, owner } = body;
+      const { deviceName, owner, user } = body;
       if (!deviceName || !owner) {
         throw new HttpException(
           'No se debe dejar campos vacíos',
@@ -145,7 +150,7 @@ export class DeviceController {
         );
       }
       const result = await this.DeviceService.asignOwner(
-        deviceName, owner
+        deviceName, owner, user
       )
       return { success: true, data: result };
     } catch (error) {

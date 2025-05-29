@@ -87,6 +87,7 @@ const MapComponent = ({
   onEvent,
   commands,
 }) => {
+  const user = localStorage.getItem("username");
   // Estados del mapa y rutas
   const [route, setRoute] = useState([]);
   const [alternateRoute, setAlternateRoute] = useState([]);
@@ -173,7 +174,7 @@ const MapComponent = ({
           // Llamar al endpoint del backend para manejar el fin de ruta
           const response = await axios.post(
             `${process.env.REACT_APP_MY_BACKEND_API}/device/end-route`,
-            { deviceName, deviceId },
+            { deviceName, deviceId, user },
             {
               headers: {
                 "Content-Type": "application/json",
@@ -473,7 +474,7 @@ const MapComponent = ({
           try {
             await axios.put(
               `${process.env.REACT_APP_MY_BACKEND_API}/routes/${deviceName}`,
-              newRouteData,
+              {newRouteData, user},
               {
                 headers: {
                   "Content-Type": "application/json",
