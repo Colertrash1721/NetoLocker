@@ -1,0 +1,16 @@
+import axios from "axios";
+
+export const createCompanyService = async (data: any) => {
+  const response = await axios.post(
+    `${process.env.NEXT_PUBLIC_MY_BACKEND_API}/auth/create/company`,
+
+    data,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  console.log(response.data);
+  return response.data;
+};
