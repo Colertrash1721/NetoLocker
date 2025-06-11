@@ -29,6 +29,27 @@ export class AuthService {
     return await this.adminRepository.find();
   }
 
+  async countAllAdmin() {
+    return await this.adminRepository.count();
+  }
+
+  async countAllCompanies() {
+    return await this.companyRepository.count();
+  }
+
+  async allActiveUsers() {
+    const adminsOnline = await this.adminRepository.count({
+      where: { isOnline: true },
+    });
+
+    const companiesOnline = await this.companyRepository.count({
+      where: { isOnline: true },
+    });
+    console.log(adminsOnline + companiesOnline);
+
+    return adminsOnline + companiesOnline;
+  }
+
   async findAllCompany() {
     return await this.companyRepository.find();
   }
@@ -47,6 +68,18 @@ export class AuthService {
 
   async findCompanyByUsername(companyName: string) {
     return await this.companyRepository.findOne({ where: { companyName } });
+  }
+
+  async getCompaniesGroupedByMonth() {
+    return await this.companyRepository.query(`
+    SELECT
+    MONTH(creationDate) AS mes_num,
+    DATE_FORMAT(creationDate, '%b') AS mes,
+    COUNT(*) AS cantidad
+    FROM company
+    GROUP BY mes_num, mes
+    ORDER BY mes_num
+  `);
   }
 
   async createAdmin(createAdminDto: CreateAdminDto) {
@@ -73,7 +106,7 @@ export class AuthService {
         HttpStatus.FOUND,
       );
     }
-    
+
     const hash = await bcrypt.hash(createCompanyDto.password, 10);
     createCompanyDto.password = hash;
 
@@ -163,7 +196,7 @@ export class AuthService {
         isOnline: true,
         lastConection: new Date(),
       });
-      const role = "admin";
+      const role = 'admin';
       const payload = {
         sub: usersAdmin.idAdmin,
         email: usersAdmin.email,
@@ -174,21 +207,21 @@ export class AuthService {
 
       await this.tokenRepository.save({ token });
       res.setHeader('Set-Cookie', [
-          cookie.serialize('authToken', token, {
-            httpOnly: true,
-            path: '/',
-            maxAge: 60 * 60, // 1 hora
-            sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production',
-          }),
-          cookie.serialize('role', role, {
-            httpOnly: false,
-            path: '/',
-            maxAge: 60 * 60,
-            sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production',
-          }),
-        ]);
+        cookie.serialize('authToken', token, {
+          httpOnly: true,
+          path: '/',
+          maxAge: 60 * 60, // 1 hora
+          sameSite: 'strict',
+          secure: process.env.NODE_ENV === 'production',
+        }),
+        cookie.serialize('role', role, {
+          httpOnly: false,
+          path: '/',
+          maxAge: 60 * 60,
+          sameSite: 'strict',
+          secure: process.env.NODE_ENV === 'production',
+        }),
+      ]);
       return {
         message: 'Login exitoso',
         token,
@@ -210,27 +243,58 @@ export class AuthService {
   async logOut(username: string, token: any, res: Response) {
     try {
       const users = await this.findAdminByUsername(username);
+      console.log(users);
+
       if (!users) {
-        throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+        console.log(username);
+        const company = await this.findCompanyByUsername(username);
+        console.log(company);
+
+        if (!company) {
+          throw new HttpException(
+            'Usuario no encontrado',
+            HttpStatus.NOT_FOUND,
+          );
+        }
+        await this.companyRepository.update(company.idCompany, {
+          isOnline: false,
+        });
+        await this.tokenRepository.delete({ token });
+        res.setHeader('Set-Cookie', [
+          cookie.serialize('authToken', '', {
+            httpOnly: true,
+            path: '/',
+            maxAge: 0,
+            sameSite: 'strict',
+          }),
+          cookie.serialize('role', '', {
+            httpOnly: false,
+            path: '/',
+            maxAge: 0,
+            sameSite: 'strict',
+          }),
+        ]);
+
+        return { message: 'Sesión cerrada correctamente' };
       }
       await this.adminRepository.update(users.idAdmin, {
         isOnline: false,
       });
       await this.tokenRepository.delete({ token });
       res.setHeader('Set-Cookie', [
-      cookie.serialize('authToken', '', {
-        httpOnly: true,
-        path: '/',
-        maxAge: 0,
-        sameSite: 'strict',
-      }),
-      cookie.serialize('role', '', {
-        httpOnly: false,
-        path: '/',
-        maxAge: 0,
-        sameSite: 'strict',
-      }),
-    ]);
+        cookie.serialize('authToken', '', {
+          httpOnly: true,
+          path: '/',
+          maxAge: 0,
+          sameSite: 'strict',
+        }),
+        cookie.serialize('role', '', {
+          httpOnly: false,
+          path: '/',
+          maxAge: 0,
+          sameSite: 'strict',
+        }),
+      ]);
 
       return { message: 'Sesión cerrada correctamente' };
     } catch (error) {

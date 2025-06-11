@@ -1,5 +1,7 @@
 import SimpleChart from "@/components/dashboard/linechart"
-import TableLayout from "@/components/dashboard/tableLayout"
+import TableContainerLayout from "@/components/dashboard/tableContainerLayout copy"
+import TableFreeloadLayout from "@/components/dashboard/tableFreeloadLayout"
+TableFreeloadLayout
 
 export default function page() {
   return (
@@ -7,7 +9,12 @@ export default function page() {
       <section className="pt-6">
         <SimpleChart />
       </section>
-      <TableLayout></TableLayout>
+      <div className="text-center">
+        <h1>Contenedores</h1>
+        <TableContainerLayout />
+        <h1>Carga suelta</h1>
+        <TableFreeloadLayout />
+      </div>
     </section>
   )
 }

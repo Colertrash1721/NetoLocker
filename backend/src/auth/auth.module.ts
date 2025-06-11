@@ -16,5 +16,6 @@ import { Company } from './entities/Company.entity';
     })],
   controllers: [AuthController],
   providers: [AuthService],
+  exports: [AuthService]
 })
 export class AuthModule {}

@@ -7,7 +7,7 @@ export default function useLogicFilter() {
   // This hook is intended to manage the logic for filtering items in a list.
     const [filter, setFilter] = useState<Filter>({
         ticket: "",
-        client: "",
+        bl: "",
         port: "",
         destination: "",
         state: "",

@@ -15,10 +15,27 @@ import { CreateCompany } from './dto/create-company-auth.dto';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-  @Get()
-  getAllCompanys() {
+  @Get('companies')
+  getAllCompanies() {
     return this.authService.findAllCompany();
   }
+  @Get('count/admins')
+  getAllAdminsCount() {
+    return this.authService.countAllAdmin();
+  }
+  @Get('count/companies')
+  getAllCompaniesCount() {
+    return this.authService.countAllCompanies();
+  }
+  @Get('count/allActive')
+  getAllActiveUsers() {
+    return this.authService.allActiveUsers();
+  }
+  @Get('count/companies-by-month')
+  async getCompaniesByMonth() {
+    return this.authService.getCompaniesGroupedByMonth();
+  }
+
   @Post('create/admin')
   createAdmin(@Body() CreateAdminDto: CreateAdminDto) {
     return this.authService.createAdmin(CreateAdminDto);

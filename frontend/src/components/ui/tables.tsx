@@ -9,6 +9,9 @@ type Props = {
   classNameB: string;
   classNameButton?: string;
   classNameIcons?: string;
+  onEstadoClick?: (estado: string, row: any) => void;
+  onDeleteClick?: (estado: string, row: any) => void;
+  onMapClick?: (row: any) => void;
 };
 
 export default function Tables({
@@ -18,7 +21,10 @@ export default function Tables({
   header,
   data,
   classNameButton,
-  classNameIcons
+  classNameIcons,
+  onEstadoClick,
+  onDeleteClick,
+  onMapClick,
 }: Props) {
   // This component renders a table with headers and data.
 
@@ -55,23 +61,37 @@ export default function Tables({
       <tbody>
         {data?.map((row, i) => (
           <tr key={i} className="border-b last:border-b-0 border-gray-200">
-            {header?.map((key, index) =>
+            {header?.map((key, index) => (
               <>
-              {key.toLowerCase() == "estado" ? (
-                <td className={classNameB} key={index}>
-                  <button className={classNameButton}>{row[key.toLowerCase()]}</button>
-                </td>
-              ) : ( key.toLowerCase() == "acciones" ? (
-                <td className={classNameB} key={index}>
-                  <i className={`${row[key.toLowerCase()]} ${classNameIcons}`}></i>
-                </td>
-              ) :
-                <td className={classNameB} key={index}>
-                  {row[key.toLowerCase()]}
-                </td>
-              )}
+                {key.toLowerCase() == "estado" ? (
+                  <td className={classNameB} key={index}>
+                    <button
+                      className={classNameButton}
+                      onClick={() =>
+                        onEstadoClick?.(row[key.toLowerCase()], row)
+                      }
+                    >
+                      {row[key.toLowerCase()]}
+                    </button>
+                  </td>
+                ) : key.toLowerCase() == "acciones" ? (
+                  <td className={classNameB} key={index}>
+                    <i
+                      className={`${row[key.toLowerCase()]} ${classNameIcons}`}
+                      onClick={() =>
+                        row[key.toLowerCase()] === "bx bx-map"
+                          ? onMapClick?.(row)
+                          : onDeleteClick?.(row.estado, row)
+                      }
+                    ></i>
+                  </td>
+                ) : (
+                  <td className={classNameB} key={index}>
+                    {row[key.toLowerCase()]}
+                  </td>
+                )}
               </>
-            )}
+            ))}
           </tr>
         ))}
       </tbody>

@@ -41,10 +41,10 @@ export default function AsideBar() {
             </li>
             <li>
               <Link
-                href="/dashboard/lockers"
+                href="/dashboard/users"
                 className="block px-4 py-2 hover:bg-[#333E8E] rounded"
               >
-                <i className="bx bx-lock"></i> Lockers
+                <i className="bx bx-lock"></i> Users
               </Link>
             </li>
           </ul>

@@ -2,7 +2,7 @@ import React from "react";
 
 type CardProps = {
   title: string;
-  value: number | string;
+  value: number | null | string;
   iconC: React.ReactNode;
 };
 

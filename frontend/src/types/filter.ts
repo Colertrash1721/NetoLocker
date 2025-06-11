@@ -1,6 +1,6 @@
 export type Filter = {
     ticket: string;
-    client: string;
+    bl: string;
     port: string;
     destination: string;
     state: string;

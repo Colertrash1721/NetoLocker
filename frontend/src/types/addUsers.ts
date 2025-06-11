@@ -4,6 +4,10 @@ export type addCompany = {
     email: string,
     phone: string,
     contactPerson: string,
+    rnc: string,
+    type: string,
+    taxes: string;
+    discount: string;
 }
 
 export type addAdmin = {

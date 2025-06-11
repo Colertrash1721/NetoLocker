@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import * as fs from 'fs';
-import * as path from 'path'
+import * as path from 'path';
 
 @Injectable()
 export class LoginMiddleware implements NestMiddleware {
@@ -16,7 +16,9 @@ export class LoginMiddleware implements NestMiddleware {
 
       const logLine = `[${logData.date}] LOGIN ATTEMPT | Email: ${logData.email} | IP: ${logData.ip} | User-Agent: ${logData.userAgent}\n`;
 
-      const logPath = path.join(__dirname, '..', '..', 'logs', 'login.log');
+      const logsDir = path.join(process.cwd(), 'logs');
+      const logPath = path.join(logsDir, 'login.log');
+
       fs.appendFile(logPath, logLine, (err) => {
         if (err) {
           console.error('Error writing login log:', err);

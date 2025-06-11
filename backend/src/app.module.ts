@@ -1,11 +1,13 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { DeviceModule } from './device/device.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoginMiddleware } from './middleware/login/login.middleware';
+import { LockersModule } from './lockers/lockers.module';
+import { InvoicesModule } from './invoices/invoices.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -28,8 +30,10 @@ import { LoginMiddleware } from './middleware/login/login.middleware';
         autoLoadEntities: true,
       }),
     }),
-    AuthModule,
-    DeviceModule,
+    AuthModule, 
+    LockersModule,
+    InvoicesModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -38,6 +42,8 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer){
     consumer
       .apply(LoginMiddleware)
-      .forRoutes('/auth/login')
+      .forRoutes({
+        path: 'auth/login', method: RequestMethod.POST
+      });
   }
 }
