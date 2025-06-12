@@ -10,12 +10,16 @@ import { CreateContainerDto } from './dto/create-container.dto';
 /* FREELOAD DTOS AND ENTITY */
 import { Freeload } from './entities/freeload.entity';
 import { CreateFrealoadDto } from './dto/create-freeload.dto';
-import { AuthService } from 'src/auth/auth.service';
 import { Estado } from './entities/estado.entity';
+
+/*SERVICES */
+import { AuthService } from 'src/auth/auth.service';
+import { DevicesService } from 'src/devices/devices.service';
 
 @Injectable()
 export class LockersService {
   constructor(
+    private readonly DevicesService: DevicesService,
     private readonly AuthService: AuthService,
     @InjectRepository(Container)
     private ContainerRepository: Repository<Container>,
@@ -111,6 +115,7 @@ export class LockersService {
         'f.destination',
         'f.BL',
         'f.creationDate',
+        'f.deviceName',
         'e.nombre',
       ])
       .where('f.idCompany = :idCompany', { idCompany: company.idCompany })
@@ -135,6 +140,7 @@ export class LockersService {
         'c.BL',
         'c.Ncontainer',
         'c.creationDate',
+        'c.deviceName',
         'e.nombre',
       ])
       .where('c.idCompany = :idCompany', { idCompany: company.idCompany })
@@ -284,47 +290,26 @@ export class LockersService {
       };
     }
   }
-  async getDeviceByName(deviceName: string): Promise<number> {
+  async getDeviceById(id: number) {
     // Buscar en freeload
     const freeload = await this.FreeloadRepository.findOne({
-      where: { deviceName },
+      where: { idFreeload: id },
     });
-    if (freeload) return await this.getDeviceIdFromTraccar(deviceName);
-
+    if (freeload) {
+      const deviceName = freeload.deviceName;
+      return await this.DevicesService.getDeviceByName(deviceName);
+    }
     // Buscar en container
     const container = await this.ContainerRepository.findOne({
-      where: { deviceName },
+      where: { idContainer: id },
     });
-    if (container) return await this.getDeviceIdFromTraccar(deviceName);
+    
+    if (container) {
+      const deviceName = container.deviceName;
+      const deviceResponse = await this.DevicesService.getDeviceByName(deviceName);
+      return deviceResponse
+    }
 
     throw new HttpException('Dispositivo no encontrado', HttpStatus.NOT_FOUND);
-  }
-
-  private async getDeviceIdFromTraccar(deviceName: string): Promise<number> {
-    const token = process.env.NEXT_PUBLIC_MY_TOKEN_PASSWORD;
-    const baseUrl = process.env.NEXT_PUBLIC_MY_API_URL;
-
-    try {
-      const res: any = await axios.get(`${baseUrl}/devices`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const device = res.data.find((d: any) => d.name === deviceName);
-      if (!device) {
-        throw new HttpException(
-          'Dispositivo no encontrado en Traccar',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      return device.id;
-    } catch (error) {
-      throw new HttpException(
-        'Error al consultar Traccar',
-        HttpStatus.BAD_GATEWAY,
-      );
-    }
   }
 }

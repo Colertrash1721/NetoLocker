@@ -39,7 +39,6 @@ export default function Tables({
     );
 
     header?.map((item, i) => {
-      console.log(`Header ${i + 1}: ${item}`);
       data?.map((row, j) => {
         console.log(`Row ${j + 1}:`, row);
         console.log(`Value for ${item} in row ${j + 1}:`, row[item]);

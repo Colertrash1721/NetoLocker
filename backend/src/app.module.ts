@@ -8,6 +8,7 @@ import { LoginMiddleware } from './middleware/login/login.middleware';
 import { LockersModule } from './lockers/lockers.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { EventsModule } from './events/events.module';
+import { DevicesModule } from './devices/devices.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { EventsModule } from './events/events.module';
     LockersModule,
     InvoicesModule,
     EventsModule,
+    DevicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

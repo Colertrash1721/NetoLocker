@@ -4,7 +4,7 @@ import Tables from "@/components/ui/tables";
 import MapModal from "../ui/mapModal";
 import { getContainersByCompany } from "@/services/container/fetchcontainer";
 import { getFreeloadsByCompany } from "@/services/container/fetchFreeload";
-import { fetchDevicePositionByName } from "@/services/track/getDevicePosition";
+import { fetchDevicePositionById } from "@/services/track/getDevicePosition";
 import { usePathname } from "next/navigation";
 import { useDeviceAssignment } from "@/hooks/container/useDeviceAssignment";
 
@@ -25,13 +25,29 @@ export default function TableLayout({ filter }: { filter: any }) {
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
     null
   );
+  const [route, setRoute] = useState<{
+    Slat: number | string | null;
+    Slng: number | string | null;
+    Elat: number | string | null;
+    Elng: number | string | null;
+  } | null>(null);
 
   const handleMapClick = async (row: any) => {
-    const deviceName = row?.deviceName || row?.bl;
+    const id: number = row?.ticket.split("-")[1];
     try {
-      const result = await fetchDevicePositionByName(deviceName);
+      const result = await fetchDevicePositionById(id);
+
       if (result) {
-        setPosition({ lat: result.latitude, lng: result.longitude });
+        setPosition({
+          lat: result.positions[0].latitude,
+          lng: result.positions[0].longitude,
+        });
+        setRoute({
+          Slat: result.route.Startlatitud,
+          Slng: result.route.Startlongitud,
+          Elat: result.route.Endlatitud,
+          Elng: result.route.Endlongitud,
+        });
       } else {
         alert("No se encontró la posición del dispositivo.");
       }
@@ -85,11 +101,17 @@ export default function TableLayout({ filter }: { filter: any }) {
   // 🔍 Aplica los filtros al data original
   const filteredData = data.filter((item: any) => {
     return (
-      (!filter.ticket || item.ticket.toLowerCase().includes(filter.ticket.toLowerCase())) &&
+      (!filter.ticket ||
+        item.ticket.toLowerCase().includes(filter.ticket.toLowerCase())) &&
       (!filter.bl || item.bl.toLowerCase().includes(filter.bl.toLowerCase())) &&
-      (!filter.port || item.puerto.toLowerCase().includes(filter.port.toLowerCase())) &&
-      (!filter.destination || item.destino.toLowerCase().includes(filter.destination.toLowerCase())) &&
-      (!filter.state || item.estado.toLowerCase().includes(filter.state.toLowerCase())) &&
+      (!filter.port ||
+        item.puerto.toLowerCase().includes(filter.port.toLowerCase())) &&
+      (!filter.destination ||
+        item.destino
+          .toLowerCase()
+          .includes(filter.destination.toLowerCase())) &&
+      (!filter.state ||
+        item.estado.toLowerCase().includes(filter.state.toLowerCase())) &&
       (!filter.date || item.fecha === filter.date)
     );
   });
@@ -113,6 +135,8 @@ export default function TableLayout({ filter }: { filter: any }) {
         <MapModal
           lat={position.lat}
           lng={position.lng}
+          start={{ lat: route?.Slat || null, lng: route?.Slng || null }}
+          end={{ lat: route?.Elat || null, lng: route?.Elng || null }}
           onClose={() => setPosition(null)}
         />
       )}

@@ -70,10 +70,9 @@ export class LockersController {
   async getFreeloadsByCompany(@Param('username') username: string) {
     return this.lockersService.findFreeloadbyCompany(username);
   }
-  @Get('device/:name')
-  async getDeviceByName(@Param('name') name: string) {
-    const id = await this.lockersService.getDeviceByName(name);
-    return { deviceId: id };
+  @Get('device/:id')
+  async getDeviceById(@Param('id') id: number) {
+    return this.lockersService.getDeviceById(id);
   }
 
   @Patch('container/device/:id')
