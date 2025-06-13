@@ -21,7 +21,7 @@ export default function RootLayout({
           rel="stylesheet"
         ></link>
       </head>
-      <body className={`${comfortaa.className}`}>{children}</body>
+      <body className={`${comfortaa.className} w-full`}>{children}</body>
     </html>
   );
 }

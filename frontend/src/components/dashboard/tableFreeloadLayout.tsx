@@ -3,25 +3,41 @@ import React, { useEffect, useState } from "react";
 import Tables from "@/components/ui/tables";
 import { fetchAllFreeloads } from "@/services/dashboard/fetchAllFreeload";
 import { useDeviceAssignment } from "@/hooks/container/useDeviceAssignment";
+import useMapModal from "@/hooks/ui/useMapModal";
+import MapModal from "../ui/mapModal";
 
 // Reemplazamos "Cliente" por "BL"
-const headers = ["Ticket", "BL", "Puerto", "Destino", "Estado", "Acciones", "Fecha"];
+const headers = [
+  "Empresa",
+  "Ticket",
+  "BL",
+  "Dispositivo",
+  "Puerto",
+  "Destino",
+  "Estado",
+  "Acciones",
+  "Fecha",
+];
 
 export default function TableFreeloadLayout() {
   const [data, setData] = useState([]);
-  const {handleDeleteClick, handleEstadoClick} = useDeviceAssignment()
+  const { handleDeleteClick, handleEstadoClick } = useDeviceAssignment();
+  const { position, route, setPosition, handleMapClick } = useMapModal();
 
   useEffect(() => {
     const getData = async () => {
       try {
         const freeloads = await fetchAllFreeloads();
         const formatted = freeloads.map((item: any) => ({
+          empresa: item.company.companyName || "N/A",
           ticket: `F-${item.idFreeload}`,
           bl: item.BL || "-", // ahora muestra el campo BL
+          dispositivo: item.deviceName || "N/A",
           puerto: item.port || "-",
           destino: item.destination || "-",
           estado: item.estado?.nombre || "pendiente",
-          acciones: item.estado?.nombre === "aceptado" ? "bx bx-map" : "bx bx-trash",
+          acciones:
+            item.estado?.nombre === "aceptado" ? "bx bx-map" : "bx bx-trash",
           fecha: item.creationDate?.split("T")[0] || "-",
         }));
         setData(formatted);
@@ -45,7 +61,18 @@ export default function TableFreeloadLayout() {
         classNameIcons="cursor-pointer text-2xl text-gray-500 hover:text-gray-700 transition-colors duration-200"
         onEstadoClick={handleEstadoClick}
         onDeleteClick={handleDeleteClick}
+        onMapClick={handleMapClick}
       />
+
+      {position && (
+        <MapModal
+          lat={position.lat}
+          lng={position.lng}
+          start={{ lat: route?.Slat || null, lng: route?.Slng || null }}
+          end={{ lat: route?.Elat || null, lng: route?.Elng || null }}
+          onClose={() => setPosition(null)}
+        />
+      )}
     </section>
   );
 }

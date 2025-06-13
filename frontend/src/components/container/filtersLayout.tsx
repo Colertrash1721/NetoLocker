@@ -2,8 +2,8 @@
 import React from "react";
 import Filters from "@/components/ui/filters";
 
-const className =
-  "border border-gray-100 rounded-lg p-2 placeholder-black text-center shadow-lg transition-all w-1/1/10";
+const baseClass =
+  "border border-gray-100 rounded-lg p-2 placeholder-black text-center shadow-lg transition-all";
 
 export default function FiltersLayout({
   filter,
@@ -13,12 +13,12 @@ export default function FiltersLayout({
   onFilterChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <section className="flex flex-row flex-wrap gap-4 w-full lg:justify-between justify-start">
+    <section className="flex flex-wrap gap-4 w-full justify-start">
       <Filters
         type="text"
         text="Ticket"
         name="ticket"
-        className={className}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%]`}
         onChange={onFilterChange}
         value={filter.ticket || ""}
       />
@@ -26,7 +26,7 @@ export default function FiltersLayout({
         type="text"
         text="BL"
         name="bl"
-        className={className}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%]`}
         onChange={onFilterChange}
         value={filter.bl || ""}
       />
@@ -34,7 +34,7 @@ export default function FiltersLayout({
         type="text"
         text="Puerto"
         name="port"
-        className={className}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%]`}
         onChange={onFilterChange}
         value={filter.port || ""}
       />
@@ -42,7 +42,7 @@ export default function FiltersLayout({
         type="text"
         text="Destino"
         name="destination"
-        className={className}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%]`}
         onChange={onFilterChange}
         value={filter.destination || ""}
       />
@@ -50,7 +50,7 @@ export default function FiltersLayout({
         type="text"
         text="Estado"
         name="state"
-        className={className}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%]`}
         onChange={onFilterChange}
         value={filter.state || ""}
       />
@@ -58,7 +58,7 @@ export default function FiltersLayout({
         type="date"
         text="Fecha"
         name="date"
-        className={`${className} appearance-none min-w-1/10 max-w-1/1`}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%] appearance-none`}
         onChange={onFilterChange}
         value={filter.date || ""}
       />

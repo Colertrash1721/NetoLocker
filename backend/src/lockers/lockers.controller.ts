@@ -75,19 +75,39 @@ export class LockersController {
     return this.lockersService.getDeviceById(id);
   }
 
+  @Patch('update/container/:id')
+  updateStateContainer(
+    @Param('id') id: number,
+    @Body() body: { state: string },
+  ) {
+    const { state } = body;
+    return this.lockersService.updateStateContainer(+id, state);
+  }
+
+  @Patch('update/freeload/:id')
+  updateStateFreeload(
+    @Param('id') id: number,
+    @Body() body: { state: string },
+  ) {
+    const { state } = body;
+    return this.lockersService.updateStateFreeload(+id, state);
+  }
+
   @Patch('container/device/:id')
   updateContainerDeviceName(
     @Param('id') id: string,
-    @Body('deviceName') deviceName: string,
+    @Body() body: { deviceName: string },
   ) {
+    const { deviceName } = body;
     return this.lockersService.updateContainerDeviceName(+id, deviceName);
   }
 
   @Patch('freeload/device/:id')
   updateFreeloadDeviceName(
     @Param('id') id: string,
-    @Body('deviceName') deviceName: string,
+    @Body() body: { deviceName: string },
   ) {
+    const { deviceName } = body;
     return this.lockersService.updateFreeloadDeviceName(+id, deviceName);
   }
 

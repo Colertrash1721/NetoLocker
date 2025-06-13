@@ -8,6 +8,8 @@ import { fetchDevicePositionById } from "@/services/track/getDevicePosition";
 import { usePathname } from "next/navigation";
 import { useDeviceAssignment } from "@/hooks/container/useDeviceAssignment";
 
+import useMapModal from "@/hooks/ui/useMapModal";
+
 const headers = [
   "Ticket",
   "BL",
@@ -21,41 +23,9 @@ const headers = [
 export default function TableLayout({ filter }: { filter: any }) {
   const pathname = usePathname();
   const [data, setData] = useState([]);
+  
+  const {handleMapClick, setPosition, position, route} = useMapModal();
   const { handleDeleteClick, handleEstadoClick } = useDeviceAssignment();
-  const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
-    null
-  );
-  const [route, setRoute] = useState<{
-    Slat: number | string | null;
-    Slng: number | string | null;
-    Elat: number | string | null;
-    Elng: number | string | null;
-  } | null>(null);
-
-  const handleMapClick = async (row: any) => {
-    const id: number = row?.ticket.split("-")[1];
-    try {
-      const result = await fetchDevicePositionById(id);
-
-      if (result) {
-        setPosition({
-          lat: result.positions[0].latitude,
-          lng: result.positions[0].longitude,
-        });
-        setRoute({
-          Slat: result.route.Startlatitud,
-          Slng: result.route.Startlongitud,
-          Elat: result.route.Endlatitud,
-          Elng: result.route.Endlongitud,
-        });
-      } else {
-        alert("No se encontró la posición del dispositivo.");
-      }
-    } catch (error) {
-      console.error("Error al obtener posición:", error);
-      alert("Error al buscar la ubicación del dispositivo.");
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -117,19 +87,21 @@ export default function TableLayout({ filter }: { filter: any }) {
   });
 
   return (
-    <section className="w-full overflow-auto">
-      <Tables
-        classNameT="w-full min-w-[850px] border-separate border-spacing-0 overflow-hidden border-gray-200 rounded-lg shadow-lg"
-        header={headers}
-        data={filteredData}
-        classNameH="text-center px-4 py-2 bg-[#FBFCFD] border-b border-t border-gray-200"
-        classNameB="text-center px-4 py-2 rounded-lg"
-        classNameButton="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200 w-full text-center"
-        classNameIcons="cursor-pointer text-2xl text-gray-500 hover:text-gray-700 transition-colors duration-200"
-        onDeleteClick={handleDeleteClick}
-        onEstadoClick={handleEstadoClick}
-        onMapClick={handleMapClick}
-      />
+    <section className="w-full overflow-x-auto px-2">
+      <div className="min-w-[850px] w-full">
+        <Tables
+          classNameT="w-full border-separate border-spacing-0 overflow-hidden border-gray-200 rounded-lg shadow-lg"
+          header={headers}
+          data={filteredData}
+          classNameH="text-xs sm:text-sm text-center px-2 sm:px-4 py-2 bg-[#FBFCFD] border-b border-t border-gray-200"
+          classNameB="text-xs sm:text-sm text-center px-2 sm:px-4 py-2 rounded-lg"
+          classNameButton="bg-blue-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200 w-full text-center text-xs sm:text-sm"
+          classNameIcons="cursor-pointer text-xl sm:text-2xl text-gray-500 hover:text-gray-700 transition-colors duration-200"
+          onDeleteClick={handleDeleteClick}
+          onEstadoClick={handleEstadoClick}
+          onMapClick={handleMapClick}
+        />
+      </div>
 
       {position && (
         <MapModal

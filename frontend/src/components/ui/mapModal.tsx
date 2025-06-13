@@ -1,3 +1,4 @@
+'use client'
 import React from "react";
 import { GoogleMap, Marker, DirectionsRenderer } from "@react-google-maps/api";
 import { useDirections } from "@/hooks/container/useDirections";

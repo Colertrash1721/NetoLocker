@@ -1,22 +1,45 @@
-"use client"
+"use client";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
-
-import { updateContainerDeviceName } from "@/services/container/updateContainerDeviceName";
-import { updateFreeloadDeviceName } from "@/services/container/updateFreeloadDeviceName";
+import {
+  updateContainerDeviceName,
+  updateStateContainer,
+} from "@/services/container/updateContainerState";
+import {
+  updateFreeloadDeviceName,
+  updateStateFreeload,
+} from "@/services/container/updateFreeloadDeviceState";
 
 import { deleteContainer } from "@/services/container/deletecontainer";
 import { deleteFreeload } from "@/services/container/deletefreeload";
 
 export const useDeviceAssignment = () => {
   const router = useRouter();
-  const handleEstadoClick = async (estado: string, row: any) => {
-    if (estado !== "pendiente") return;
+  const handleEstadoClick = async (estadoActual: string, row: any) => {
+    const id = parseInt(row.ticket.split("-")[1]);
+    const isFreeload = row.ticket.startsWith("F");
+
+    let nuevoEstado = "";
+    let mensajeConfirm = "";
+    let mensajeExito = "";
+
+    if (estadoActual === "pendiente") {
+      nuevoEstado = "aceptado";
+      mensajeConfirm = "¿Deseas cambiar el estado a 'aceptado'?";
+      mensajeExito =
+        "Estado cambiado a aceptado. Ahora ingresa el nombre del dispositivo.";
+    } else if (estadoActual === "aceptado") {
+      nuevoEstado = "finalizado";
+      mensajeConfirm = "¿Deseas finalizar este registro?";
+      mensajeExito = "Registro finalizado correctamente.";
+    } else {
+      return; // Si ya está finalizado, no hacemos nada
+    }
 
     const confirmResult = await Swal.fire({
-      title: "¿Cambiar a 'aceptado'?",
-      text: "¿Deseas cambiar el estado a 'aceptado'?",
+      title: `Cambiar a '${nuevoEstado}'`,
+      text: mensajeConfirm,
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Sí, cambiar",
@@ -25,33 +48,42 @@ export const useDeviceAssignment = () => {
 
     if (!confirmResult.isConfirmed) return;
 
-    const inputResult = await Swal.fire({
-      title: "Nombre del dispositivo",
-      input: "text",
-      inputLabel: "Ingresa el nombre del dispositivo",
-      inputPlaceholder: "Ej: NETO-123",
-      showCancelButton: true,
-      confirmButtonText: "Guardar",
-      cancelButtonText: "Cancelar",
-      inputValidator: (value) => {
-        if (!value) {
-          return "Debes ingresar un nombre de dispositivo";
-        }
-        return null;
-      },
-    });
-
-    if (!inputResult.isConfirmed || !inputResult.value) return;
-
     try {
-      const id = parseInt(row.ticket.split("-")[1]);
-      const isFreeload = row.ticket.startsWith("F");
+      const state = isFreeload
+        ? await updateStateFreeload(id, estadoActual)
+        : await updateStateContainer(id, estadoActual);
 
-      if (isFreeload) {
-        await updateFreeloadDeviceName(id, inputResult.value);
-      } else {
-        await updateContainerDeviceName(id, inputResult.value);
+      if (nuevoEstado === "finalizado") {
+        await Swal.fire({
+          title: "Finalizado",
+          text: mensajeExito,
+          icon: "success",
+        });
+        router.refresh()
+        return;
       }
+
+      // Si fue aceptado, pedimos el nombre del dispositivo
+      const inputResult = await Swal.fire({
+        title: "Nombre del dispositivo",
+        input: "text",
+        inputLabel: "Ingresa el nombre del dispositivo",
+        inputPlaceholder: "Ej: NETO-123",
+        showCancelButton: true,
+        confirmButtonText: "Guardar",
+        cancelButtonText: "Cancelar",
+        inputValidator: (value) => {
+          if (!value) return "Debes ingresar un nombre de dispositivo";
+          return null;
+        },
+      });
+
+      if (!inputResult.isConfirmed || !inputResult.value) return;
+
+      // Guardamos el nombre del dispositivo
+      isFreeload
+        ? await updateFreeloadDeviceName(id, inputResult.value)
+        : await updateContainerDeviceName(id, inputResult.value);
 
       Swal.fire({
         title: "Actualizado",

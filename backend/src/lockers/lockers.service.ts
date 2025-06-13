@@ -71,6 +71,7 @@ export class LockersService {
       'c',
     )
       .innerJoinAndSelect('c.estado', 'e')
+      .innerJoinAndSelect('c.company', 'co')
       .select([
         'c.idContainer',
         'c.port',
@@ -78,7 +79,9 @@ export class LockersService {
         'c.BL',
         'c.Ncontainer',
         'c.creationDate',
+        'c.deviceName',
         'e.nombre',
+        'co.companyName'
       ])
       .getMany();
 
@@ -88,13 +91,16 @@ export class LockersService {
   async findAllFreeload() {
     const detailedResult = await this.FreeloadRepository.createQueryBuilder('f')
       .innerJoinAndSelect('f.estado', 'e')
+      .innerJoinAndSelect('f.company', 'co')
       .select([
         'f.idFreeload',
         'f.port',
         'f.destination',
         'f.BL',
         'f.creationDate',
+        'f.deviceName',
         'e.nombre',
+        'co.companyName'
       ])
       .getMany();
 
@@ -165,6 +171,40 @@ export class LockersService {
     });
   }
 
+  async updateStateContainer(id: number, state: string){
+    const container = await this.ContainerRepository.findOne({
+      where: { idContainer: id },
+    });
+    if (!container) {
+      throw new HttpException('Contenedor no encontrado', HttpStatus.NOT_FOUND);
+    }
+    if (state === "pendiente") {
+      container.idEstado = 2;
+      return await this.ContainerRepository.save(container);
+    }
+    if (state === "aceptado") {
+      container.idEstado = 3;
+      return await this.ContainerRepository.save(container);
+    }
+  }
+
+  async updateStateFreeload(id: number, state: string){
+    const freeload = await this.FreeloadRepository.findOne({
+      where: { idFreeload: id },
+    });
+    if (!freeload) {
+      throw new HttpException('Precinto no encontrado', HttpStatus.NOT_FOUND);
+    }
+    if (state === "pendiente") {
+      freeload.idEstado = 2;
+      return await this.FreeloadRepository.save(freeload);
+    }
+    if (state === "aceptado") {
+      freeload.idEstado = 3;
+      return await this.FreeloadRepository.save(freeload);
+    }
+  }
+
   async updateContainerDeviceName(id: number, deviceName: string) {
     const container = await this.ContainerRepository.findOne({
       where: { idContainer: id },
@@ -175,7 +215,6 @@ export class LockersService {
     }
 
     container.deviceName = deviceName;
-    container.idEstado = 2; // Actualiza la FK directamente
 
     const updated = await this.ContainerRepository.save(container);
     return {
@@ -194,7 +233,7 @@ export class LockersService {
     }
 
     freeload.deviceName = deviceName;
-    freeload.idEstado = 2;
+    
 
     const updated = await this.FreeloadRepository.save(freeload);
     return {

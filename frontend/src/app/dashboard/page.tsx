@@ -1,5 +1,5 @@
 import SimpleChart from "@/components/dashboard/linechart"
-import TableContainerLayout from "@/components/dashboard/tableContainerLayout copy"
+import TableContainerLayout from "@/components/dashboard/tableContainerLayout"
 import TableFreeloadLayout from "@/components/dashboard/tableFreeloadLayout"
 TableFreeloadLayout
 

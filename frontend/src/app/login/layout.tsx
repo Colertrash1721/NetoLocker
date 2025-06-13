@@ -9,8 +9,8 @@ const comfortaa = Comfortaa({
 export default function RootLayout({children}: {children: React.ReactNode}) {
     return (
         <html lang="en">
-            <body>
-                <main className={`flex flex-row items-center justify-center w-full h-screen bg-gray-100 ${comfortaa.className}`}>
+            <body className={`${comfortaa.className}`}>
+                <main className={`flex flex-row items-center justify-center w-full h-screen bg-gray-100 `}>
                     {children}
                 </main>
             </body>
