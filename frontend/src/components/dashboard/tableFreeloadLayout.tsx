@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Tables from "@/components/ui/tables";
-import { fetchAllFreeloads } from "@/services/dashboard/fetchAllFreeload";
+import { fetchAllFreeloads } from "@/services/dashboard/read/fetchAllFreeload";
 import { useDeviceAssignment } from "@/hooks/container/useDeviceAssignment";
 import useMapModal from "@/hooks/ui/useMapModal";
 import MapModal from "../ui/mapModal";
@@ -38,7 +38,7 @@ export default function TableFreeloadLayout() {
           estado: item.estado?.nombre || "pendiente",
           acciones:
             item.estado?.nombre === "aceptado" ? "bx bx-map" : "bx bx-trash",
-          fecha: item.creationDate?.split("T")[0] || "-",
+          fecha: item.estimatedDate?.split("T")[0] || "-",
         }));
         setData(formatted);
       } catch (err) {

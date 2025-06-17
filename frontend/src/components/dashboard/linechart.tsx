@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { getCompaniesByMonth } from "@/services/dashboard/fetchUsers";
+import { getCompaniesByMonth } from "@/services/dashboard/read/fetchUsers";
 
 type CompanyChartData = {
   name: string;

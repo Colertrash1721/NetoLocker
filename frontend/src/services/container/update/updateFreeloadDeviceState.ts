@@ -26,3 +26,15 @@ export const updateStateFreeload = async(id:number, state: string) => {
   )
   return response.data;
 }
+
+export const updateCancelFreeloadState = async(id: number) => {
+  const response = await axios.patch(`${process.env.NEXT_PUBLIC_MY_BACKEND_API}/lockers/cancel/state/freeload/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    }
+  )
+  return response.data;
+}

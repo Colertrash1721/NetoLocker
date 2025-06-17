@@ -60,4 +60,14 @@ export class AuthController {
     const { username, token } = body;
     return this.authService.logOut(username, token, res);
   }
+  @Delete('company/:username')
+  deleteCompany(@Param('username') username: string){
+    return this.authService.deleteCompany(username)
+  }
+  @Patch('company/:username')
+  updateCompany(@Param('username') username: string,
+  @Body() body: {row: any} ){
+    const {row} = body;
+    return this.authService.updateCompany(username, row)
+  }
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Header from "@/components/layout/header";
 import NavegationLayout from "@/components/container/navegationLayout";
 import FiltersLayout from "@/components/container/filtersLayout";

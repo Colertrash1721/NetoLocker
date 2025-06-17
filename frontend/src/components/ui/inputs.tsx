@@ -10,9 +10,11 @@ type InputsProps = {
   value?: string;
   name?: string;
   icon?: string;
+  min?: number;
+  max?: number;
 };
 
-export default function Inputs({ name, label, type, value, icon, onChange }: InputsProps) {
+export default function Inputs({ name, label, type, value, icon, min, max, onChange }: InputsProps) {
     // This component renders an input field with a floating label that moves above the input when it has a value.
     const hadValue = useInputState(value || "", label);
   return (
@@ -21,6 +23,8 @@ export default function Inputs({ name, label, type, value, icon, onChange }: Inp
         type={`${type}`}
         name={`${name || label?.toLowerCase()}`}
         value={value}
+        min={min}
+        max={max}
         className={`peer border border-[#1FB4D0] rounded p-2 w-full outline-none text-black focus:shadow-md transition-all`}
         onChange={onChange}
       />

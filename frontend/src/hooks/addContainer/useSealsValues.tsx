@@ -3,7 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useState } from "react";
 import { addSeals } from "@/types/addContainer";
-import { freeload } from "@/services/container/Createfreeload";
+import { freeload } from "@/services/container/create/createfreeload";
 import { redirect } from "next/navigation";
 
 export default function useSealsValues() {
@@ -11,6 +11,7 @@ export default function useSealsValues() {
     port: "",
     destination: "",
     bl: "",
+    estimatedDate: ""
   });
 
   const handleSealsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -30,6 +31,9 @@ export default function useSealsValues() {
         text: "Precinto solicitado de manera correcta",
         icon: "success",
       });
+      setTimeout(() => {
+        redirect('/container/')
+      }, 2000);
       return freeloadResponse;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -40,7 +44,7 @@ export default function useSealsValues() {
           icon: "error",
         });
         setTimeout(() => {
-          redirect("/container/");
+          redirect('/container/')
         }, 2000);
       } else {
         console.log("Error desconocido:", error);

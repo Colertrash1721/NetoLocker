@@ -1,5 +1,5 @@
 "use client";
-import { getEvents } from "@/services/dashboard/fetchAllEvents";
+import { getEvents } from "@/services/dashboard/read/fetchAllEvents";
 import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Tooltip, ResponsiveContainer } from "recharts";
 

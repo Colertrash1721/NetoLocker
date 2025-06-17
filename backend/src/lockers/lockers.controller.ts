@@ -93,6 +93,16 @@ export class LockersController {
     return this.lockersService.updateStateFreeload(+id, state);
   }
 
+  @Patch('cancel/state/container/:id')
+  cancelStateContainer(@Param('id') id: number){
+    return this.lockersService.cancelContainerState(+id)
+  }
+
+  @Patch('cancel/state/freeload/:id')
+  cancelStateFreeload(@Param('id') id: number){
+    return this.lockersService.cancelFreeloadState(+id)
+  }
+
   @Patch('container/device/:id')
   updateContainerDeviceName(
     @Param('id') id: string,

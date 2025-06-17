@@ -2,9 +2,8 @@
 import { useEffect, useState } from "react";
 import Tables from "@/components/ui/tables";
 import MapModal from "../ui/mapModal";
-import { getContainersByCompany } from "@/services/container/fetchcontainer";
-import { getFreeloadsByCompany } from "@/services/container/fetchFreeload";
-import { fetchDevicePositionById } from "@/services/track/getDevicePosition";
+import { getContainersByCompany } from "@/services/container/read/fetchcontainer";
+import { getFreeloadsByCompany } from "@/services/container/read/fetchFreeload";
 import { usePathname } from "next/navigation";
 import { useDeviceAssignment } from "@/hooks/container/useDeviceAssignment";
 
@@ -20,12 +19,12 @@ const headers = [
   "Fecha",
 ];
 
-export default function TableLayout({ filter }: { filter: any }) {
+export default function TableLayout({ filter }: { filter?: any }) {
   const pathname = usePathname();
   const [data, setData] = useState([]);
   
   const {handleMapClick, setPosition, position, route} = useMapModal();
-  const { handleDeleteClick, handleEstadoClick } = useDeviceAssignment();
+  const { handleDeleteClick, handleCancelButton } = useDeviceAssignment();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,8 +43,8 @@ export default function TableLayout({ filter }: { filter: any }) {
             destino: item.destination,
             estado: item.estado?.nombre || "pendiente",
             acciones:
-              item.estado?.nombre === "aceptado" ? "bx bx-map" : "bx bx-trash",
-            fecha: item.creationDate?.split("T")[0],
+              item.estado?.nombre === "aceptado" ? ("bx bx-map") : (item.estado?.nombre === "cancelado" ? "-" : "Cancelar"),
+            fecha: item.estimatedDate?.split("T")[0] || "N/A",
           }))
         );
       } else {
@@ -59,8 +58,8 @@ export default function TableLayout({ filter }: { filter: any }) {
             destino: item.destination,
             estado: item.estado?.nombre || "pendiente",
             acciones:
-              item.estado?.nombre === "aceptado" ? "bx bx-map" : "bx bx-trash",
-            fecha: item.creationDate?.split("T")[0],
+              item.estado?.nombre === "aceptado" ? ("bx bx-map") : (item.estado?.nombre === "cancelado" ? "-" : (item.estado?.nombre === "finalizado" ? "-" : "Cancelar")),
+            fecha: item.estimatedDate?.split("T")[0] || "N/A",
           }))
         );
       }
@@ -97,9 +96,10 @@ export default function TableLayout({ filter }: { filter: any }) {
           classNameB="text-xs sm:text-sm text-center px-2 sm:px-4 py-2 rounded-lg"
           classNameButton="bg-blue-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200 w-full text-center text-xs sm:text-sm"
           classNameIcons="cursor-pointer text-xl sm:text-2xl text-gray-500 hover:text-gray-700 transition-colors duration-200"
+          classNameButtonCancel="bg-red-500 text-white px-2 sm:px-3 py-1 rounded hover:bg-red-600 transition-colors duration-200 w-full text-center text-xs sm:text-sm"
           onDeleteClick={handleDeleteClick}
-          onEstadoClick={handleEstadoClick}
           onMapClick={handleMapClick}
+          onCancelState={handleCancelButton}
         />
       </div>
 

@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import Inputs from "../ui/inputs";
-import Buttons from "../ui/buttons";
 import useAdminFormValues from "@/hooks/dashboard/useAdminForm";
 
 export default function AdminForm() {

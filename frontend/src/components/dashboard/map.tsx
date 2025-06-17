@@ -6,7 +6,7 @@ import {
   Marker,
   DirectionsRenderer,
 } from "@react-google-maps/api";
-import { fetchTraccarPositions } from "@/services/dashboard/fetchTraccarDevices";
+import { fetchTraccarPositions } from "@/services/dashboard/read/fetchTraccarDevices";
 
 const containerStyle = { width: "100%", height: "100%" };
 const center = { lat: 18.4861, lng: -69.9312 };

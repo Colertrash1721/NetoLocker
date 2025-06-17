@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import { addContainer } from '@/types/addContainer';
-import { container } from '@/services/container/Createcontainer';
+import { container } from '@/services/container/create/createcontainer';
 import Swal from 'sweetalert2';
 import { redirect } from 'next/navigation';
 
@@ -10,7 +10,8 @@ export default function useContainerValues() {
     port: '',
     destination: '',
     bl: '',
-    ncontainer: ''
+    ncontainer: '',
+    estimatedDate: ''
   });
 
   const handleContainerChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

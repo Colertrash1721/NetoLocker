@@ -45,7 +45,6 @@ export class AuthService {
     const companiesOnline = await this.companyRepository.count({
       where: { isOnline: true },
     });
-    console.log(adminsOnline + companiesOnline);
 
     return adminsOnline + companiesOnline;
   }
@@ -115,7 +114,6 @@ export class AuthService {
 
   async login(email: string, password: string, res: Response) {
     if (!email || !password) {
-      console.log('No puede ingresar datos vacios');
       throw new HttpException(
         'No debe dejar campos vacios',
         HttpStatus.BAD_GATEWAY,
@@ -161,14 +159,14 @@ export class AuthService {
             path: '/',
             maxAge: 60 * 60, // 1 hora
             sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production',
+            secure: false,
           }),
           cookie.serialize('role', role, {
             httpOnly: false,
             path: '/',
             maxAge: 60 * 60,
             sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production',
+            secure: false,
           }),
         ]);
         return {
@@ -212,14 +210,14 @@ export class AuthService {
           path: '/',
           maxAge: 60 * 60, // 1 hora
           sameSite: 'strict',
-          secure: process.env.NODE_ENV === 'production',
+          secure: false,
         }),
         cookie.serialize('role', role, {
           httpOnly: false,
           path: '/',
           maxAge: 60 * 60,
           sameSite: 'strict',
-          secure: process.env.NODE_ENV === 'production',
+          secure: false,
         }),
       ]);
       return {
@@ -243,12 +241,9 @@ export class AuthService {
   async logOut(username: string, token: any, res: Response) {
     try {
       const users = await this.findAdminByUsername(username);
-      console.log(users);
 
       if (!users) {
-        console.log(username);
         const company = await this.findCompanyByUsername(username);
-        console.log(company);
 
         if (!company) {
           throw new HttpException(
@@ -304,5 +299,37 @@ export class AuthService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async deleteCompany(username: string){
+    const company = await this.findCompanyByUsername(username)
+    if (!company) {
+      return ;
+    }
+    return this.companyRepository.delete({companyName: username})
+  }
+
+  async updateCompany(username: string, row: any){
+    const company = await this.findCompanyByUsername(username)
+    if (!company) {
+      throw new HttpException("La empresa no existe", HttpStatus.NOT_FOUND)
+    }
+    
+    const updatedFields = {
+    companyName: row.name,
+    email: row.email,
+    contactPerson: row.contactPerson,
+    rnc: row.rnc,
+    phone: row.cellphone,
+    type: row.companyType,
+  };
+
+  await this.companyRepository.update(company.idCompany, updatedFields);
+
+  return {
+    message: "Empresa actualizada correctamente",
+    updated: updatedFields,
+  };
+    
   }
 }

@@ -1,21 +1,30 @@
 "use client";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import {
+  updateCancelContainerState,
   updateContainerDeviceName,
   updateStateContainer,
-} from "@/services/container/updateContainerState";
+} from "@/services/container/update/updateContainerState";
 import {
+  updateCancelFreeloadState,
   updateFreeloadDeviceName,
   updateStateFreeload,
-} from "@/services/container/updateFreeloadDeviceState";
+} from "@/services/container/update/updateFreeloadDeviceState";
 
-import { deleteContainer } from "@/services/container/deletecontainer";
-import { deleteFreeload } from "@/services/container/deletefreeload";
+import { deleteContainer } from "@/services/container/delete/deletecontainer";
+import { deleteFreeload } from "@/services/container/delete/deletefreeload";
+import { deleteCompany } from "@/services/dashboard/delete/deleteCompany";
+
+import ModalEditCompany from "@/components/dashboard/modalEditCompany";
+import { updateCompany } from "@/services/dashboard/update/updateCompany";
 
 export const useDeviceAssignment = () => {
   const router = useRouter();
+  const [editingCompany, setEditingCompany] = useState<any | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const handleEstadoClick = async (estadoActual: string, row: any) => {
     const id = parseInt(row.ticket.split("-")[1]);
     const isFreeload = row.ticket.startsWith("F");
@@ -59,7 +68,7 @@ export const useDeviceAssignment = () => {
           text: mensajeExito,
           icon: "success",
         });
-        router.refresh()
+        router.refresh();
         return;
       }
 
@@ -148,8 +157,138 @@ export const useDeviceAssignment = () => {
     }
   };
 
-  return {
-    handleEstadoClick,
-    handleDeleteClick,
+  const handleCancelButton = async (row: any) =>{
+    const confirm = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Esta acción cancelará el pedido.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const id = parseInt(row.ticket.split("-")[1]);
+      console.log(id);
+
+      const isFreeload = row.ticket.startsWith("F");
+
+      if (isFreeload) {
+        await updateCancelFreeloadState(id);
+      } else {
+        await updateCancelContainerState(id);
+      }
+      Swal.fire({
+        title: "Cancelando",
+        text: "Por favor espera.",
+        timer: 2000, // duración del mensaje (en milisegundos)
+        timerProgressBar: true,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        willClose: () => {
+          router.refresh(); // recarga los datos en Next.js (alternativa moderna a reload)
+          window.location.reload()
+        },
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo cancelar el registro.",
+        icon: "error",
+      });
+    }
+  } 
+
+  const handleDeleteCompany = async (row: any) => {
+    const confirm = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Esta acción eliminará la compañia permanentemente.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const username = row.nombre;
+
+      console.log(username);
+
+      await deleteCompany(username);
+      Swal.fire({
+        title: "Eliminando...",
+        text: "Por favor espera.",
+        timer: 2000, // duración del mensaje (en milisegundos)
+        timerProgressBar: true,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        willClose: () => {
+          router.refresh(); // recarga los datos en Next.js (alternativa moderna a reload)
+        },
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo eliminar la compañia",
+        icon: "error",
+      });
+    }
   };
+  const handleUpdateCompany = async (row: any) => {
+    setEditingCompany(row);
+    setModalVisible(true);
+  };
+
+  const handleSaveUpdateCompany = async (updatedCompany: any) => {
+    // Aquí deberías llamar al backend para guardar los cambios
+    const username = updatedCompany.nombre;
+    const row = {
+      'name': updatedCompany.nombre,
+      'email': updatedCompany.email,
+      'contactPerson': updatedCompany.persona_de_contacto,
+      'rnc': updatedCompany.rnc,
+      'cellphone': updatedCompany.telefono,
+      'companyType': updatedCompany.tipo_de_empresa,
+    }
+    await updateCompany(username, row)
+    Swal.fire({
+        title: "Editando...",
+        text: "Por favor espera.",
+        timer: 2000, // duración del mensaje (en milisegundos)
+        timerProgressBar: true,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        willClose: () => {
+          router.refresh(); // recarga los datos en Next.js (alternativa moderna a reload)
+          window.location.reload()
+        },
+      });
+    setModalVisible(false);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setEditingCompany(null);
+  };
+
+  return {
+  modalVisible,
+  editingCompany,
+  handleEstadoClick,
+  handleDeleteClick,
+  handleDeleteCompany,
+  handleUpdateCompany,
+  handleSaveUpdateCompany,
+  handleCloseModal,
+  handleCancelButton
+};
+
 };

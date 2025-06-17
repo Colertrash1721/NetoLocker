@@ -80,6 +80,7 @@ export class LockersService {
         'c.Ncontainer',
         'c.creationDate',
         'c.deviceName',
+        'c.estimadedDate',
         'e.nombre',
         'co.companyName'
       ])
@@ -122,6 +123,7 @@ export class LockersService {
         'f.BL',
         'f.creationDate',
         'f.deviceName',
+        'f.estimatedDate',
         'e.nombre',
       ])
       .where('f.idCompany = :idCompany', { idCompany: company.idCompany })
@@ -129,6 +131,7 @@ export class LockersService {
 
     return detailedResult;
   }
+
   async findContainerbyCompany(username: string) {
     const company = await this.AuthService.findCompanyByUsername(username);
     if (!company) {
@@ -147,6 +150,7 @@ export class LockersService {
         'c.Ncontainer',
         'c.creationDate',
         'c.deviceName',
+        'c.estimatedDate',
         'e.nombre',
       ])
       .where('c.idCompany = :idCompany', { idCompany: company.idCompany })
@@ -242,6 +246,39 @@ export class LockersService {
     };
   }
 
+  async cancelContainerState(id: number){
+    const container = await this.ContainerRepository.findOne({
+      where: {
+        idContainer: id
+      },
+    })
+
+    if (!container) {
+      throw new HttpException('Contenedor no encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    container.idEstado = 4;
+
+    return await this.ContainerRepository.save(container);
+  }
+
+  async cancelFreeloadState(id:number){
+
+    const freeload = await this.FreeloadRepository.findOne({
+      where: {
+        idFreeload: id
+      },
+    })
+
+    if (!freeload) {
+      throw new HttpException('Precinto no encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    freeload.idEstado = 4;
+
+    return await this.FreeloadRepository.save(freeload);
+  }
+
   async removeContainer(id: number) {
     const container = await this.ContainerRepository.findOne({
       where: {
@@ -284,7 +321,6 @@ export class LockersService {
         NContainer: CreateContainerDto.nContainer,
         idCompany: company.idCompany,
       });
-      console.log(container);
 
       const saved = await this.ContainerRepository.save(container);
       return {

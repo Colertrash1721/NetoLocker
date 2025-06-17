@@ -24,7 +24,7 @@ export default function SealsForm() {
           name="port"
           value={sealsValues.port}
           onChange={handleSealsChange}
-          className="w-full border rounded-lg p-2"
+          className="w-full border border-[#1FB4D0] rounded p-2"
         >
           <option value="">Seleccione una ubicación</option>
           {ubicaciones.map((ubicacion, idx) => (
@@ -36,13 +36,13 @@ export default function SealsForm() {
       </label>
 
       {/* Dropdown: Puerto de destino */}
-      <label className="w-3/4">
+      <label className="w-3/4 mb-3">
         <span className="block mb-1 text-sm font-semibold">Puerto de destino</span>
         <select
           name="destination"
           value={sealsValues.destination}
           onChange={handleSealsChange}
-          className="w-full border rounded-lg p-2"
+          className="w-full border p-2 border-[#1FB4D0] rounded"
         >
           <option value="">Seleccione una ubicación</option>
           {ubicaciones.map((ubicacion, idx) => (
@@ -58,6 +58,12 @@ export default function SealsForm() {
         value={sealsValues.bl}
         name="bl"
         label="Bill of lading"
+        onChange={handleSealsChange}
+      />
+      <Inputs
+        type="datetime-local"
+        name="estimatedDate"
+        value={sealsValues.estimatedDate}
         onChange={handleSealsChange}
       />
 

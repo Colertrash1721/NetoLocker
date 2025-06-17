@@ -1,7 +1,6 @@
 import SimpleChart from "@/components/dashboard/linechart"
 import TableContainerLayout from "@/components/dashboard/tableContainerLayout"
 import TableFreeloadLayout from "@/components/dashboard/tableFreeloadLayout"
-TableFreeloadLayout
 
 export default function page() {
   return (

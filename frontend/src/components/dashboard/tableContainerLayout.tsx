@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Tables from "@/components/ui/tables";
-import { fetchAllContainers } from "@/services/dashboard/fetchAllContainer";
+import { fetchAllContainers } from "@/services/dashboard/read/fetchAllContainer";
 import { useDeviceAssignment } from "@/hooks/container/useDeviceAssignment";
 
 import useMapModal from "@/hooks/ui/useMapModal";
@@ -28,6 +28,8 @@ export default function TableContainerLayout() {
     const getData = async () => {
       try {
         const containers = await fetchAllContainers();
+        console.log(containers);
+        
         const formatted = containers.map((item: any) => ({
           empresa: item.company.companyName || "N/A",
           ticket: `C-${item.idContainer}`,
@@ -38,7 +40,7 @@ export default function TableContainerLayout() {
           estado: item.estado?.nombre || "pendiente",
           acciones:
             item.estado?.nombre === "aceptado" ? "bx bx-map" : "bx bx-trash",
-          fecha: item.creationDate?.split("T")[0] || "-",
+          fecha: item.estimatedDate?.split("T")[0] || "-",
         }));
         setData(formatted);
       } catch (err) {

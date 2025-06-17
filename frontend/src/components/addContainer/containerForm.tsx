@@ -24,7 +24,7 @@ export default function ContainerForm() {
           name="port"
           value={containerValues.port}
           onChange={handleContainerChange}
-          className="w-full border rounded-lg p-2"
+          className="w-full border border-[#1FB4D0] rounded p-2"
         >
           <option value="">Seleccione una ubicación</option>
           {ubicaciones.map((ubicacion, index) => (
@@ -36,13 +36,13 @@ export default function ContainerForm() {
       </label>
 
       {/* Dropdown: Puerto de destino */}
-      <label className="w-3/4">
+      <label className="w-3/4 mb-3">
         <span className="block mb-1 text-sm font-semibold">Puerto de destino</span>
         <select
           name="destination"
           value={containerValues.destination}
           onChange={handleContainerChange}
-          className="w-full border rounded-lg p-2"
+          className="w-full border border-[#1FB4D0] rounded p-2"
         >
           <option value="">Seleccione una ubicación</option>
           {ubicaciones.map((ubicacion, index) => (
@@ -66,6 +66,12 @@ export default function ContainerForm() {
         name="ncontainer"
         value={containerValues.ncontainer}
         label="N# Contenedor"
+        onChange={handleContainerChange}
+      />
+      <Inputs
+        type="datetime-local"
+        name="estimatedDate"
+        value={containerValues.estimatedDate}
         onChange={handleContainerChange}
       />
 

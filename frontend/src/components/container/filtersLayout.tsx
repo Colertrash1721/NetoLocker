@@ -18,7 +18,7 @@ export default function FiltersLayout({
         type="text"
         text="Ticket"
         name="ticket"
-        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%]`}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[20%] lg:w-[10%]`}
         onChange={onFilterChange}
         value={filter.ticket || ""}
       />
@@ -26,7 +26,7 @@ export default function FiltersLayout({
         type="text"
         text="BL"
         name="bl"
-        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%]`}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[10%]`}
         onChange={onFilterChange}
         value={filter.bl || ""}
       />
@@ -50,7 +50,7 @@ export default function FiltersLayout({
         type="text"
         text="Estado"
         name="state"
-        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%]`}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[15%]`}
         onChange={onFilterChange}
         value={filter.state || ""}
       />

@@ -33,22 +33,17 @@ export default function FormLayout() {
           `}
           content={
             <>
-              <h1>
+              <h2 className="text-black text-2xl">
                 {showContainerForm
-                  ? "Solicitar contenedor"
-                  : "Solicitar precinto"}
-              </h1>
-              <h2>
-                {showContainerForm
-                  ? "¿Desea carga suelta?"
-                  : "¿Desea un contenedor?"}
+                  ? "Para carga suelta"
+                  : "Para contenedor"}
               </h2>
               <button
                 onClick={toggleForm}
-                className="group overflow-hidden relative border p-2 px-4 rounded-lg after:absolute after:left-[-100%] after:top-0 after:bg-white after:rounded-lg after:w-full after:h-full after:content-[''] after:z-[1] hover:after:left-0 transition-all after:transition-all duration-300 cursor-pointer"
+                className="group overflow-hidden relative border p-2 px-4 rounded-lg after:absolute after:left-[-100%] after:top-0 after:bg-black after:rounded-lg after:w-full after:h-full after:content-[''] after:z-[1] hover:border-black hover:after:left-0 transition-all after:transition-all duration-300 cursor-pointer text-xl"
               >
-                <span className="relative z-10 group-hover:text-black">
-                  {showContainerForm ? "Precinto" : "Contenedor"}
+                <span className="relative z-10 text-black group-hover:text-white">
+                  Presione aquí
                 </span>
               </button>
             </>
