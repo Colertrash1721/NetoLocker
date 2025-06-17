@@ -73,7 +73,6 @@ export default function GoogleMapComponent() {
   if (!apiKey) return <p>No API key provided.</p>;
 
   return (
-    <LoadScript googleMapsApiKey={apiKey}>
       <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={10}>
         {/* Dispositivos (camiones) */}
         {devicesPositions.map((pos) => (
@@ -109,6 +108,5 @@ export default function GoogleMapComponent() {
           <DirectionsRenderer key={idx} directions={dir} />
         ))}
       </GoogleMap>
-    </LoadScript>
   );
 }
