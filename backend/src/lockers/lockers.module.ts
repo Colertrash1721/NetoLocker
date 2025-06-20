@@ -12,10 +12,11 @@ import { Estado } from './entities/estado.entity';
 /*Services */
 import { AuthModule } from 'src/auth/auth.module';
 import { DevicesModule } from 'src/devices/devices.module';
+import { RoutesModule } from 'src/routes/routes.module';
 
 
 @Module({
-  imports: [AuthModule, DevicesModule, TypeOrmModule.forFeature([Company, Freeload, Container, Estado])],
+  imports: [RoutesModule, AuthModule, DevicesModule, TypeOrmModule.forFeature([Company, Freeload, Container, Estado])],
   controllers: [LockersController],
   providers: [LockersService],
 })

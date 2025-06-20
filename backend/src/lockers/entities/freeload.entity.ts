@@ -28,6 +28,9 @@ export class Freeload {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   creationDate: Date;
 
+  @Column({ type: 'datetime', nullable: true })
+  estimatedDate: Date; 
+
   @Column({nullable: true, default: 1})
   idEstado: number;
 

@@ -1,15 +1,14 @@
 "use client";
 import React from "react";
 import Inputs from "../ui/inputs";
-import Buttons from "../ui/buttons";
 import useAdminFormValues from "@/hooks/dashboard/useAdminForm";
 
 export default function AdminForm() {
   const { adminValues, handleAdminSubmit, handleContainerChange } =
     useAdminFormValues();
   return (
-    <div className="bg-white shadow-lg rounded-xl p-6">
-      <h1 className="font-bold text-3xl tracking-wide text-black mb-4">
+    <div className="bg-white shadow-lg rounded-xl p-6 dark:bg-[#202329] dark:shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+      <h1 className="font-bold text-3xl tracking-wide text-black mb-4 dark:text-white">
         Crear administrador
       </h1>
       <form onSubmit={(e) => handleAdminSubmit(e)}>
@@ -36,7 +35,7 @@ export default function AdminForm() {
         />
         <button
           type="submit"
-          className="w-3/4 border p-2.5 text-center bg-[#7495ED] text-white rounded-lg hover:shadow-lg transition-all after:transition-all duration-300 cursor-pointer"
+          className="w-3/4 border p-2.5 text-center bg-[#7495ED] dark:bg-gray-700 dark:border-transparent text-white rounded-lg hover:shadow-lg transition-all after:transition-all duration-300 cursor-pointer"
         >
           Crear
         </button>

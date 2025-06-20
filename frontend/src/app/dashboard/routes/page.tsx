@@ -24,11 +24,11 @@ export default function Page() {
         <GoogleMapComponent />
       </div>
       <article className="grid grid-cols-[30%_70%] gap-4">
-        <section className='bg-[#f9f9f9] shadow-2xl h-full w-full flex flex-col items-center justify-center'>
-          <h1 className='text-black'>Eventos lanzados este último mes</h1>
+        <section className='bg-[#f9f9f9] dark:bg-[#13151B] dark:text-white shadow-2xl h-full w-full flex flex-col items-center justify-center'>
+          <h1 className='text-black dark:text-white'>Eventos lanzados este último mes</h1>
           <PieChartComponent />
         </section>
-        <section className='bg-[#f9f9f9] h-full w-[98%] p-4 rounded-lg shadow-lg'>
+        <section className='bg-[#f9f9f9] dark:bg-[#13151B] dark:text-white h-full w-[98%] p-4 rounded-lg shadow-lg'>
           <LockerSelector type={type} onChange={setType} />
           <LockerList type={type} data={data} />
         </section>

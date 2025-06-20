@@ -3,7 +3,7 @@ import React from "react";
 import Filters from "@/components/ui/filters";
 
 const baseClass =
-  "border border-gray-100 rounded-lg p-2 placeholder-black text-center shadow-lg transition-all";
+  "border border-gray-100 rounded-lg p-2 placeholder-black text-center shadow-lg transition-all dark:bg-[#2D3137] dark:text-white dark:border-transparent dark:placeholder-white";
 
 export default function FiltersLayout({
   filter,
@@ -13,12 +13,12 @@ export default function FiltersLayout({
   onFilterChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <section className="flex flex-wrap gap-4 w-full justify-start">
+    <section className="flex flex-wrap gap-4 w-full justify-start dark:text-white">
       <Filters
         type="text"
         text="Ticket"
         name="ticket"
-        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%]`}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[20%] lg:w-[10%]`}
         onChange={onFilterChange}
         value={filter.ticket || ""}
       />
@@ -26,7 +26,7 @@ export default function FiltersLayout({
         type="text"
         text="BL"
         name="bl"
-        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%]`}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[10%]`}
         onChange={onFilterChange}
         value={filter.bl || ""}
       />
@@ -50,7 +50,7 @@ export default function FiltersLayout({
         type="text"
         text="Estado"
         name="state"
-        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[18%]`}
+        className={`${baseClass} w-full sm:w-[45%] md:w-[30%] lg:w-[15%]`}
         onChange={onFilterChange}
         value={filter.state || ""}
       />

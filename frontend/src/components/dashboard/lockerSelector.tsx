@@ -11,14 +11,14 @@ type Props = {
 export default function LockerSelector({ type, onChange }: Props) {
   return (
     <div className="flex justify-between items-center mb-4">
-      <label htmlFor="selectType" className="text-lg text-black">
+      <label htmlFor="selectType" className="text-lg text-black dark:text-white">
         Tipo de búsqueda:
       </label>
       <select
         id="selectType"
         value={type}
         onChange={(e) => onChange(e.target.value as LockerType)}
-        className="px-3 py-1 rounded text-black"
+        className="px-3 py-1 rounded text-black dark:text-white"
       >
         <option value="contenedor">Contenedor</option>
         <option value="freeload">Carga libre</option>

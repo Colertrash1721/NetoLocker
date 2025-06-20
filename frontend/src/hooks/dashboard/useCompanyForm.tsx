@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { SelectHTMLAttributes } from "react";
 import { useState } from "react";
 import { addCompany } from "@/types/addUsers";
 import { createCompanyService } from "@/services/auth/createCompany";
@@ -20,8 +20,16 @@ export default function useCompanyFormValues() {
     taxes: "",
     type: "",
   });
-  const handleContainerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleContainerChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+
+    if (name === "discount") {
+      const numericValue = Number(value)
+      if (numericValue > 15) {
+        return ;
+      }
+    }
+
     setContainerValues((prevValues) => ({
       ...prevValues,
       [name]: value,

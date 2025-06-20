@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import axios from 'axios';
+import ubicacionesData from '../data/locations.json';
 
 /* CONTAINER DTOS AND ENTITY */
 import { Container } from './entities/container.entity';
@@ -15,11 +16,13 @@ import { Estado } from './entities/estado.entity';
 /*SERVICES */
 import { AuthService } from 'src/auth/auth.service';
 import { DevicesService } from 'src/devices/devices.service';
+import { RoutesService } from 'src/routes/routes.service';
 
 @Injectable()
 export class LockersService {
   constructor(
     private readonly DevicesService: DevicesService,
+    private readonly RoutesService: RoutesService,
     private readonly AuthService: AuthService,
     @InjectRepository(Container)
     private ContainerRepository: Repository<Container>,
@@ -80,8 +83,9 @@ export class LockersService {
         'c.Ncontainer',
         'c.creationDate',
         'c.deviceName',
+        'c.estimatedDate',
         'e.nombre',
-        'co.companyName'
+        'co.companyName',
       ])
       .getMany();
 
@@ -99,8 +103,9 @@ export class LockersService {
         'f.BL',
         'f.creationDate',
         'f.deviceName',
+        'f.estimatedDate',
         'e.nombre',
-        'co.companyName'
+        'co.companyName',
       ])
       .getMany();
 
@@ -122,6 +127,7 @@ export class LockersService {
         'f.BL',
         'f.creationDate',
         'f.deviceName',
+        'f.estimatedDate',
         'e.nombre',
       ])
       .where('f.idCompany = :idCompany', { idCompany: company.idCompany })
@@ -129,6 +135,7 @@ export class LockersService {
 
     return detailedResult;
   }
+
   async findContainerbyCompany(username: string) {
     const company = await this.AuthService.findCompanyByUsername(username);
     if (!company) {
@@ -147,6 +154,7 @@ export class LockersService {
         'c.Ncontainer',
         'c.creationDate',
         'c.deviceName',
+        'c.estimatedDate',
         'e.nombre',
       ])
       .where('c.idCompany = :idCompany', { idCompany: company.idCompany })
@@ -171,44 +179,48 @@ export class LockersService {
     });
   }
 
-  async updateStateContainer(id: number, state: string){
+  async updateStateContainer(id: number, state: string) {
     const container = await this.ContainerRepository.findOne({
       where: { idContainer: id },
     });
     if (!container) {
       throw new HttpException('Contenedor no encontrado', HttpStatus.NOT_FOUND);
     }
-    if (state === "pendiente") {
+    if (state === 'pendiente') {
       container.idEstado = 2;
       return await this.ContainerRepository.save(container);
     }
-    if (state === "aceptado") {
+    if (state === 'aceptado') {
       container.idEstado = 3;
+      await this.RoutesService.deleteRouteByDeviceName(container.deviceName);
       return await this.ContainerRepository.save(container);
     }
   }
 
-  async updateStateFreeload(id: number, state: string){
+  async updateStateFreeload(id: number, state: string) {
     const freeload = await this.FreeloadRepository.findOne({
       where: { idFreeload: id },
     });
     if (!freeload) {
       throw new HttpException('Precinto no encontrado', HttpStatus.NOT_FOUND);
     }
-    if (state === "pendiente") {
+    if (state === 'pendiente') {
       freeload.idEstado = 2;
       return await this.FreeloadRepository.save(freeload);
     }
-    if (state === "aceptado") {
+    if (state === 'aceptado') {
       freeload.idEstado = 3;
+      await this.RoutesService.deleteRouteByDeviceName(freeload.deviceName);
       return await this.FreeloadRepository.save(freeload);
     }
   }
 
-  async updateContainerDeviceName(id: number, deviceName: string) {
+  async updateContainerDeviceName(id: number, deviceName: string, row: any) {
     const container = await this.ContainerRepository.findOne({
       where: { idContainer: id },
     });
+    console.log('Puerto de salida recibido:', row.port);
+    console.log('Puerto de destino recibido:', row.destination);
 
     if (!container) {
       throw new HttpException('Contenedor no encontrado', HttpStatus.NOT_FOUND);
@@ -217,13 +229,37 @@ export class LockersService {
     container.deviceName = deviceName;
 
     const updated = await this.ContainerRepository.save(container);
+    // Buscar coordenadas
+    const origen = ubicacionesData.ubicaciones.find(
+      (u) => u.nombre.toLowerCase().trim() === row.port.toLowerCase().trim(),
+    );
+    const destino = ubicacionesData.ubicaciones.find(
+      (u) =>
+        u.nombre.toLowerCase().trim() === row.destination.toLowerCase().trim(),
+    );
+
+    if (!origen || !destino) {
+      throw new HttpException(
+        'Ubicación no encontrada en el JSON',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Crear ruta
+    await this.RoutesService.createRoute({
+      device_Name: deviceName,
+      Startlatitud: origen.latitud.toString(),
+      Startlongitud: origen.longitud.toString(),
+      Endlatitud: destino.latitud.toString(),
+      Endlongitud: destino.longitud.toString(),
+    });
     return {
       message: 'deviceName actualizado correctamente',
       data: updated,
     };
   }
 
-  async updateFreeloadDeviceName(id: number, deviceName: string) {
+  async updateFreeloadDeviceName(id: number, deviceName: string, row: any) {
     const freeload = await this.FreeloadRepository.findOne({
       where: { idFreeload: id },
     });
@@ -233,13 +269,66 @@ export class LockersService {
     }
 
     freeload.deviceName = deviceName;
-    
 
     const updated = await this.FreeloadRepository.save(freeload);
+    const origen = ubicacionesData.ubicaciones.find(
+      (u) => u.nombre.toLowerCase().trim() === row.port.toLowerCase().trim(),
+    );
+    const destino = ubicacionesData.ubicaciones.find(
+      (u) =>
+        u.nombre.toLowerCase().trim() === row.destination.toLowerCase().trim(),
+    );
+
+    if (!origen || !destino) {
+      throw new HttpException(
+        'Ubicación no encontrada en el JSON',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.RoutesService.createRoute({
+      device_Name: deviceName,
+      Startlatitud: origen.latitud.toString(),
+      Startlongitud: origen.longitud.toString(),
+      Endlatitud: destino.latitud.toString(),
+      Endlongitud: destino.longitud.toString(),
+    });
     return {
       message: 'deviceName actualizado correctamente',
       data: updated,
     };
+  }
+
+  async cancelContainerState(id: number) {
+    const container = await this.ContainerRepository.findOne({
+      where: {
+        idContainer: id,
+      },
+    });
+
+    if (!container) {
+      throw new HttpException('Contenedor no encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    container.idEstado = 4;
+
+    return await this.ContainerRepository.save(container);
+  }
+
+  async cancelFreeloadState(id: number) {
+    const freeload = await this.FreeloadRepository.findOne({
+      where: {
+        idFreeload: id,
+      },
+    });
+
+    if (!freeload) {
+      throw new HttpException('Precinto no encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    freeload.idEstado = 4;
+
+    return await this.FreeloadRepository.save(freeload);
   }
 
   async removeContainer(id: number) {
@@ -284,7 +373,6 @@ export class LockersService {
         NContainer: CreateContainerDto.nContainer,
         idCompany: company.idCompany,
       });
-      console.log(container);
 
       const saved = await this.ContainerRepository.save(container);
       return {
@@ -329,26 +417,75 @@ export class LockersService {
       };
     }
   }
+
   async getDeviceById(id: number) {
     // Buscar en freeload
+
     const freeload = await this.FreeloadRepository.findOne({
       where: { idFreeload: id },
     });
     if (freeload) {
       const deviceName = freeload.deviceName;
+      console.log(freeload);
       return await this.DevicesService.getDeviceByName(deviceName);
     }
     // Buscar en container
     const container = await this.ContainerRepository.findOne({
       where: { idContainer: id },
     });
-    
+    console.log('holaaa');
+
     if (container) {
       const deviceName = container.deviceName;
-      const deviceResponse = await this.DevicesService.getDeviceByName(deviceName);
-      return deviceResponse
+      const deviceResponse =
+        await this.DevicesService.getDeviceByName(deviceName);
+      return deviceResponse;
     }
 
     throw new HttpException('Dispositivo no encontrado', HttpStatus.NOT_FOUND);
+  }
+
+  async updateContainerData(id: number, row: any) {
+    const container = await this.ContainerRepository.findOne({
+      where: { idContainer: id },
+    });
+
+    if (!container) {
+      throw new HttpException('Contenedor no encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    // Actualizamos los campos
+    container.port = row.port;
+    container.destination = row.destination;
+    container.BL = row.bl;
+
+    // Guardamos
+    const updated = await this.ContainerRepository.save(container);
+
+    return {
+      message: 'Contenedor actualizado correctamente',
+      data: updated,
+    };
+  }
+
+  async updateFreeloadData(id: number, row: any) {
+    const freeload = await this.FreeloadRepository.findOne({
+      where: { idFreeload: id },
+    });
+
+    if (!freeload) {
+      throw new HttpException('Precinto no encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    freeload.port = row.port;
+    freeload.destination = row.destination;
+    freeload.BL = row.bl;
+
+    const updated = await this.FreeloadRepository.save(freeload);
+
+    return {
+      message: 'Precinto actualizado correctamente',
+      data: updated,
+    };
   }
 }

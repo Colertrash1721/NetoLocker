@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchContainersByDate, fetchFreeloadsByDate } from '@/services/dashboard/fetchbyDate';
+import { fetchContainersByDate, fetchFreeloadsByDate } from '@/services/dashboard/read/fetchbyDate';
 
 export type LockerType = 'contenedor' | 'freeload';
 

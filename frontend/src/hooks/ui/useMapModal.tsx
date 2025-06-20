@@ -27,12 +27,9 @@ export default function useMapModal() {
           Elat: result.route.Endlatitud,
           Elng: result.route.Endlongitud,
         });
-      } else {
-        alert("No se encontró la posición del dispositivo.");
-      }
+      } 
     } catch (error) {
       console.error("Error al obtener posición:", error);
-      alert("Error al buscar la ubicación del dispositivo.");
     }
   };
 

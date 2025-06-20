@@ -5,7 +5,7 @@ import {
   getAllCompanies,
   getAllAdmins,
   getActiveUsers,
-} from '@/services/dashboard/fetchUsers';
+} from '@/services/dashboard/read/fetchUsers';
 
 export default function useUsers() {
   const [companies, setCompanies] = useState<number | null>(null);

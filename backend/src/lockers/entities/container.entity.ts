@@ -28,6 +28,9 @@ export class Container {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   creationDate: Date;
 
+  @Column({ type: 'datetime', nullable: true })
+  estimatedDate: Date; 
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   deviceName: string;
   
