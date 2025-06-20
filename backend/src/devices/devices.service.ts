@@ -60,6 +60,7 @@ export class DevicesService {
       
       const devices: any = deviceResponse.data;
       const device = devices.find((device: any) => device.name === deviceName);
+      console.log(deviceName);
       if (!device) {
         throw new HttpException(`device not found`, HttpStatus.NOT_FOUND);
       }

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { addSeals } from "@/types/addContainer";
 import { freeload } from "@/services/container/create/createfreeload";
 import { redirect } from "next/navigation";
+import ubicacionesData from "../../../locations.json";
 
 export default function useSealsValues() {
   const [sealsValues, setSealsValues] = useState<addSeals>({
@@ -24,6 +25,7 @@ export default function useSealsValues() {
   const handleSealsSubmit = async (e: React.FormEvent<HTMLFormElement | HTMLSelectElement>) => {
     e.preventDefault();
     const username = localStorage.getItem("username");
+    
     try {
       const freeloadResponse = await freeload(sealsValues, username!);
       Swal.fire({

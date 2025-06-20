@@ -9,6 +9,7 @@ import { LockersModule } from './lockers/lockers.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { EventsModule } from './events/events.module';
 import { DevicesModule } from './devices/devices.module';
+import { RoutesModule } from './routes/routes.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { DevicesModule } from './devices/devices.module';
     InvoicesModule,
     EventsModule,
     DevicesModule,
+    RoutesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

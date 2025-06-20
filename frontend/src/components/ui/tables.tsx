@@ -16,6 +16,7 @@ type Props = {
   onUpdateCompany?: (row: any) => void;
   onCancelState?: (row: any) => void;
   onMapClick?: (row: any) => void;
+  onEditRow?: (row: any) => void;
 };
 
 export default function Tables({
@@ -32,7 +33,8 @@ export default function Tables({
   onDeleteCompany,
   onCancelState,
   onMapClick,
-  onUpdateCompany
+  onUpdateCompany,
+  onEditRow
 }: Props) {
   // This component renders a table with headers and data.
 
@@ -116,7 +118,7 @@ export default function Tables({
                     <i
                       className={`${row[key.toLowerCase()]} ${classNameIcons}`}
                       onClick={() =>
-                        onUpdateCompany?.(row)
+                        onUpdateCompany?.(row) || onEditRow?.(row)
                       }
                     ></i>
                   </td>

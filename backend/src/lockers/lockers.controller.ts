@@ -7,6 +7,9 @@ import {
   Param,
   Delete,
   Query,
+  Put,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { LockersService } from './lockers.service';
 /*DTOS */
@@ -106,19 +109,51 @@ export class LockersController {
   @Patch('container/device/:id')
   updateContainerDeviceName(
     @Param('id') id: string,
-    @Body() body: { deviceName: string },
+    @Body() body: { deviceName: string, row: any },
   ) {
-    const { deviceName } = body;
-    return this.lockersService.updateContainerDeviceName(+id, deviceName);
+    const { deviceName, row } = body;
+    console.log(row);
+    return this.lockersService.updateContainerDeviceName(+id, deviceName, row);
   }
 
   @Patch('freeload/device/:id')
   updateFreeloadDeviceName(
     @Param('id') id: string,
-    @Body() body: { deviceName: string },
+    @Body() body: { deviceName: string, row: any },
   ) {
-    const { deviceName } = body;
-    return this.lockersService.updateFreeloadDeviceName(+id, deviceName);
+    const { deviceName, row } = body;
+    console.log(row);
+    return this.lockersService.updateFreeloadDeviceName(+id, deviceName, row);
+  }
+
+  @Put('container/:id')
+  async updateContainerData(
+    @Param('id') id: number,
+    @Body() body: { port: string; destination: string; bl: string },
+  ) {
+    try {
+      return await this.lockersService.updateContainerData(id, body);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Error actualizando contenedor',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Put('freeload/:id')
+  async updateFreeloadData(
+    @Param('id') id: number,
+    @Body() body: { port: string; destination: string; bl: string },
+  ) {
+    try {
+      return await this.lockersService.updateFreeloadData(id, body);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Error actualizando precinto',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Delete('container/:id')

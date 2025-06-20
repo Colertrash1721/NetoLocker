@@ -9,9 +9,9 @@ export default function page() {
         <SimpleChart />
       </section>
       <div className="text-center">
-        <h1>Contenedores</h1>
+        <h1 className="dark:text-white">Contenedores</h1>
         <TableContainerLayout />
-        <h1>Carga suelta</h1>
+        <h1 className="dark:text-white">Carga suelta</h1>
         <TableFreeloadLayout />
       </div>
     </section>

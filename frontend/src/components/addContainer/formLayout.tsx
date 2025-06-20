@@ -15,7 +15,7 @@ export default function FormLayout() {
   };
 
   return (
-    <div className="forms text-black w-4/5 md:w-3/4 h-4/5 lg:w-3/4 bg-white rounded-lg shadow-md gap-4 overflow-hidden relative">
+    <div className="forms text-black w-4/5 md:w-3/4 h-4/5 lg:w-3/4 bg-white rounded-lg shadow-md gap-4 overflow-hidden relative dark:bg-[#2D3137]">
       <i 
         className='bx bx-menu absolute top-5 left-5 md:text-[0px] cursor-pointer z-20 text-2xl'
         onClick={toggleWall}
@@ -23,7 +23,7 @@ export default function FormLayout() {
       <div className="absolute top-0 left-0 h-full w-full transition-transform duration-500 ease-in-out z-10">
         <Wall
           className={`absolute
-            bg-[#7495ED]
+            bg-[#7495ED] dark:bg-[#121F7B]
             ${showContainerForm && !wallExpanded ? "rounded-r-[10rem]" : ""}
             text-white
             flex flex-col items-center justify-center gap-2
@@ -33,16 +33,16 @@ export default function FormLayout() {
           `}
           content={
             <>
-              <h2 className="text-black text-2xl">
+              <h2 className="text-black text-2xl dark:text-white">
                 {showContainerForm
                   ? "Para carga suelta"
                   : "Para contenedor"}
               </h2>
               <button
                 onClick={toggleForm}
-                className="group overflow-hidden relative border p-2 px-4 rounded-lg after:absolute after:left-[-100%] after:top-0 after:bg-black after:rounded-lg after:w-full after:h-full after:content-[''] after:z-[1] hover:border-black hover:after:left-0 transition-all after:transition-all duration-300 cursor-pointer text-xl"
+                className="group overflow-hidden relative border p-2 px-4 rounded-lg after:absolute after:left-[-100%] after:top-0 after:bg-black after:rounded-lg after:w-full after:h-full after:content-[''] after:z-[1] hover:border-black hover:after:left-0 transition-all after:transition-all duration-300 cursor-pointer text-xl dark:text-white"
               >
-                <span className="relative z-10 text-black group-hover:text-white">
+                <span className="relative z-10 text-black group-hover:text-white dark:text-white">
                   Presione aquí
                 </span>
               </button>

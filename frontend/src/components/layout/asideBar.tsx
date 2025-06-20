@@ -26,7 +26,8 @@ export default function AsideBar() {
       <aside
         className={`${
           isOpen ? "fixed" : "hidden"
-        } z-40 top-0 left-0 h-screen w-full bg-[#050D68] text-white md:block md:w-64 md:relative`}
+        } z-40 top-0 left-0 h-screen w-full dark:bg-[#13151B] dark:text-gray-500 bg-[#050D68] 
+        text-white md:block md:w-64 md:relative`}
       >
         <nav
           aria-label="Main Navigation"
@@ -52,7 +53,7 @@ export default function AsideBar() {
               <li>
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-[#333E8E] rounded"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-[#333E8E] dark:hover:text-white dark:hover:bg-gray-800 rounded"
                   onClick={closeMenu}
                 >
                   <i className="bx bx-home"></i>
@@ -62,7 +63,7 @@ export default function AsideBar() {
               <li>
                 <Link
                   href="/dashboard/routes"
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-[#333E8E] rounded"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-[#333E8E] dark:hover:text-white dark:hover:bg-gray-800 rounded"
                   onClick={closeMenu}
                 >
                   <i className="bx bx-map"></i>
@@ -72,7 +73,7 @@ export default function AsideBar() {
               <li>
                 <Link
                   href="/dashboard/users"
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-[#333E8E] rounded"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-[#333E8E] dark:hover:text-white dark:hover:bg-gray-800 rounded"
                   onClick={closeMenu}
                 >
                   <i className="bx bx-lock"></i>
@@ -84,7 +85,7 @@ export default function AsideBar() {
           <div className="w-full">
             <Buttons
               text="Cerrar sesi&oacute;n"
-              className="flex gap-2 items-center justify-center p-2 rounded-lg bg-[#715BD5] cursor-pointer hover:bg-red-500 transition-all duration-400 hover:gap-5 w-full"
+              className="flex gap-2 items-center justify-center p-2 rounded-lg bg-[#715BD5] cursor-pointer hover:bg-red-500 transition-all duration-400 hover:gap-5 w-full dark:text-white dark:bg-gray-800"
               iconsB={<i className="bx bx-door-open text-2xl"></i>}
               onClick={() => {
                 closeMenu();

@@ -29,7 +29,7 @@ export default function TableContainerLayout() {
       try {
         const containers = await fetchAllContainers();
         console.log(containers);
-        
+
         const formatted = containers.map((item: any) => ({
           empresa: item.company.companyName || "N/A",
           ticket: `C-${item.idContainer}`,
@@ -49,16 +49,21 @@ export default function TableContainerLayout() {
     };
 
     getData();
+    const interval = setInterval(() => {
+      getData(); // actualiza cada minuto
+    }, 60000); // 60,000 ms = 1 minuto
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <section className="w-full overflow-auto">
       <Tables
-        classNameT="w-full min-w-[850px] border-separate border-spacing-0 overflow-hidden border-gray-200 rounded-lg shadow-lg"
+        classNameT="w-full min-w-[850px] border-separate border-spacing-0 overflow-hidden border-gray-200 rounded-lg shadow-lg dark:shadow-gray-800 dark:shadow-2xl"
         header={headers}
         data={data}
-        classNameH="text-center px-4 py-2 bg-[#FBFCFD] border-b border-t border-gray-200"
-        classNameB="text-center px-4 py-2 rounded-lg bg-white"
+        classNameH="text-center px-4 py-2 bg-[#FBFCFD] border-b border-t border-gray-200 dark:bg-[#2D3137] dark:text-white dark:border-transparent dark:shadow-2xl"
+        classNameB="text-center px-4 py-2 rounded-lg bg-white dark:text-white dark:bg-transparent"
         classNameButton="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200 w-full text-center"
         classNameIcons="cursor-pointer text-2xl text-gray-500 hover:text-gray-700 transition-colors duration-200"
         onEstadoClick={handleEstadoClick}

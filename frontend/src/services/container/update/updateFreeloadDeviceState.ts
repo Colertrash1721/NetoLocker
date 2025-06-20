@@ -1,9 +1,9 @@
 import axios from "axios";
 
-export const updateFreeloadDeviceName = async (id: number, deviceName: string) => {
+export const updateFreeloadDeviceName = async (id: number, deviceName: string, row: any) => {
   const response = await axios.patch(
     `${process.env.NEXT_PUBLIC_MY_BACKEND_API}/lockers/freeload/device/${id}`,
-    { deviceName },
+    { deviceName, row },
     {
       headers: {
         "Content-Type": "application/json",

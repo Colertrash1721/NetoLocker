@@ -16,7 +16,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="flex justify-center sm:justify-between items-center text-white bg-[#213388] h-full pr-2.5 pl-2.5 sm:pr-4.5 sm:pl-4.5 md:pr-6 md:pl-6 px-2">
+    <header className="flex justify-center sm:justify-between items-center text-white bg-[#213388] h-full pr-2.5 pl-2.5 sm:pr-4.5 sm:pl-4.5 md:pr-6 md:pl-6 px-2 dark:bg-[#13151B]">
       
       {/* Imagen oculta en pantallas pequeñas */}
       <div className="hidden sm:block">

@@ -1,9 +1,9 @@
 import axios from "axios";
 
-export const updateContainerDeviceName = async (id: number, deviceName: string) => {
+export const updateContainerDeviceName = async (id: number, deviceName: string, row: any) => {
   const response = await axios.patch(
     `${process.env.NEXT_PUBLIC_MY_BACKEND_API}/lockers/container/device/${id}`,
-    { deviceName },
+    { deviceName, row },
     {
       headers: {
         "Content-Type": "application/json",

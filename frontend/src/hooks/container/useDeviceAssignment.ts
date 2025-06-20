@@ -67,8 +67,12 @@ export const useDeviceAssignment = () => {
           title: "Finalizado",
           text: mensajeExito,
           icon: "success",
+          willClose: () => {
+            router.refresh();
+            window.location.reload();
+          },
         });
-        router.refresh();
+
         return;
       }
 
@@ -91,13 +95,16 @@ export const useDeviceAssignment = () => {
 
       // Guardamos el nombre del dispositivo
       isFreeload
-        ? await updateFreeloadDeviceName(id, inputResult.value)
-        : await updateContainerDeviceName(id, inputResult.value);
+        ? await updateFreeloadDeviceName(id, inputResult.value, row)
+        : await updateContainerDeviceName(id, inputResult.value, row);
 
       Swal.fire({
         title: "Actualizado",
         text: "Estado y dispositivo actualizados correctamente",
         icon: "success",
+        willClose: () => {
+          window.location.reload();
+        },
       });
     } catch (error) {
       console.error("Error:", error);
@@ -110,7 +117,7 @@ export const useDeviceAssignment = () => {
   };
 
   const handleDeleteClick = async (estado: string, row: any) => {
-    if (estado !== "pendiente") return;
+    if (estado == "aceptado") return;
 
     const confirm = await Swal.fire({
       title: "¿Estás seguro?",
@@ -145,6 +152,7 @@ export const useDeviceAssignment = () => {
         },
         willClose: () => {
           router.refresh(); // recarga los datos en Next.js (alternativa moderna a reload)
+          window.location.reload();
         },
       });
     } catch (error) {
@@ -157,7 +165,7 @@ export const useDeviceAssignment = () => {
     }
   };
 
-  const handleCancelButton = async (row: any) =>{
+  const handleCancelButton = async (row: any) => {
     const confirm = await Swal.fire({
       title: "¿Estás seguro?",
       text: "Esta acción cancelará el pedido.",
@@ -190,7 +198,7 @@ export const useDeviceAssignment = () => {
         },
         willClose: () => {
           router.refresh(); // recarga los datos en Next.js (alternativa moderna a reload)
-          window.location.reload()
+          window.location.reload();
         },
       });
     } catch (error) {
@@ -201,7 +209,7 @@ export const useDeviceAssignment = () => {
         icon: "error",
       });
     }
-  } 
+  };
 
   const handleDeleteCompany = async (row: any) => {
     const confirm = await Swal.fire({
@@ -231,6 +239,7 @@ export const useDeviceAssignment = () => {
         },
         willClose: () => {
           router.refresh(); // recarga los datos en Next.js (alternativa moderna a reload)
+          window.location.reload();
         },
       });
     } catch (error) {
@@ -250,27 +259,27 @@ export const useDeviceAssignment = () => {
     // Aquí deberías llamar al backend para guardar los cambios
     const username = updatedCompany.nombre;
     const row = {
-      'name': updatedCompany.nombre,
-      'email': updatedCompany.email,
-      'contactPerson': updatedCompany.persona_de_contacto,
-      'rnc': updatedCompany.rnc,
-      'cellphone': updatedCompany.telefono,
-      'companyType': updatedCompany.tipo_de_empresa,
-    }
-    await updateCompany(username, row)
+      name: updatedCompany.nombre,
+      email: updatedCompany.email,
+      contactPerson: updatedCompany.persona_de_contacto,
+      rnc: updatedCompany.rnc,
+      cellphone: updatedCompany.telefono,
+      companyType: updatedCompany.tipo_de_empresa,
+    };
+    await updateCompany(username, row);
     Swal.fire({
-        title: "Editando...",
-        text: "Por favor espera.",
-        timer: 2000, // duración del mensaje (en milisegundos)
-        timerProgressBar: true,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-        willClose: () => {
-          router.refresh(); // recarga los datos en Next.js (alternativa moderna a reload)
-          window.location.reload()
-        },
-      });
+      title: "Editando...",
+      text: "Por favor espera.",
+      timer: 2000, // duración del mensaje (en milisegundos)
+      timerProgressBar: true,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+      willClose: () => {
+        router.refresh(); // recarga los datos en Next.js (alternativa moderna a reload)
+        window.location.reload();
+      },
+    });
     setModalVisible(false);
   };
 
@@ -280,15 +289,14 @@ export const useDeviceAssignment = () => {
   };
 
   return {
-  modalVisible,
-  editingCompany,
-  handleEstadoClick,
-  handleDeleteClick,
-  handleDeleteCompany,
-  handleUpdateCompany,
-  handleSaveUpdateCompany,
-  handleCloseModal,
-  handleCancelButton
-};
-
+    modalVisible,
+    editingCompany,
+    handleEstadoClick,
+    handleDeleteClick,
+    handleDeleteCompany,
+    handleUpdateCompany,
+    handleSaveUpdateCompany,
+    handleCloseModal,
+    handleCancelButton,
+  };
 };
