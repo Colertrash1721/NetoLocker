@@ -1,23 +1,26 @@
 "use client";
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 const icons = [
   { className: "bx bx-home", link: "https://netotrack.com", text: "Netotrack.com", action: "link" },
-  { className: "bx bxl-whatsapp", link: "809-372-1028", text: "809-372-1028", action: "copy" },
+  { className: "bx bxl-whatsapp", link: "+18093721028", text: "809-372-1028", action: "whatsapp" },
   { className: "bx bxl-gmail", link: "info@netotrack.com", text: "info@netotrack.com", action: "copy" },
 ];
 
 export default function SocialIcons() {
   const [copied, setCopied] = useState<string | null>(null);
 
-  const handleClick = (item: typeof icons[0]) => {
+  const handleClick = async (item: typeof icons[0]) => {
     if (item.action === "link") {
       window.open(item.link, "_blank");
     } else if (item.action === "copy") {
-      navigator.clipboard.writeText(item.link).then(() => {
-        setCopied(item.text);
-        setTimeout(() => setCopied(null), 2000);
-      });
+      await navigator.clipboard.writeText(item.link);
+      setCopied(item.text);
+      setTimeout(() => setCopied(null), 2000);
+    } else if (item.action === "whatsapp") {
+      const url = `https://api.whatsapp.com/send?phone=${item.link}&text='Buenas`;
+      window.open(url, "_blank");
     }
   };
 
@@ -34,8 +37,8 @@ export default function SocialIcons() {
             ${item.className === "bx bx-home"
               ? "hover:bg-black hover:text-white"
               : item.className === "bx bxl-whatsapp"
-              ? "hover:bg-green-500 hover:text-white"
-              : "hover:bg-red-500 hover:text-white"}`}
+                ? "hover:bg-green-500 hover:text-white"
+                : "hover:bg-red-500 hover:text-white"}`}
         >
           <i className={item.className}></i>
 
