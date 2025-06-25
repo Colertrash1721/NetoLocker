@@ -9,6 +9,8 @@ import Report from "./report";
 import Drivers from "./drivers";
 import Commands from "./commands";
 import LoadingBoard from "../pages/loadingBoard";
+import QrModal from "./qrModal";
+
 
 export function FloatingBoard({
   handleNotifications,
@@ -60,6 +62,7 @@ export function FloatingBoard({
   const [commands, setcommands] = useState({});
   let advise = false;
   const [isLoading, setIsLoading] = useState(true);
+  const [qrData, setqrData] = useState('');
 
   // Efecto para verificar cuando todos los datos están cargados
   useEffect(() => {
@@ -197,7 +200,7 @@ export function FloatingBoard({
           events[device.name] = response.data.type;
           alarms[device.name] = response.data.attributes.alarm;
         } catch (error) {
-          console.error(`Error al obtener evento de ${device.name}:`, error);
+
           setIsLoading(false);
         }
       }
@@ -219,14 +222,14 @@ export function FloatingBoard({
             headers: { Authorization: `Bearer ${token}` },
           });
           console.log(`Evento guardado para ${device.name}:`, response.data, process.env.REACT_APP_MY_BACKEND_API);
-          
+
           if (response.status === 200) {
             console.log(`Evento guardado para ${device.name}`);
           } else {
-            console.error(`Error al guardar evento para ${device.name}`);
+
           }
         } catch (error) {
-          console.error(`Error al guardar evento para ${device.name}:`, error);
+
           setIsLoading(false);
         }
       }
@@ -275,11 +278,10 @@ export function FloatingBoard({
             setTimeout(() => {
               Swal.fire({
                 title: "PELIGRO",
-                text: `El dispositivo ${device.name} fue apagado. ${
-                  drivers[device.name]
+                text: `El dispositivo ${device.name} fue apagado. ${drivers[device.name]
                     ? "Llamar al conductor: " + drivers[device.name].name
                     : ""
-                }`,
+                  }`,
                 icon: "warning",
               });
             }, 2000);
@@ -364,7 +366,7 @@ export function FloatingBoard({
           },
         }
       );
-    } catch (error) {}
+    } catch (error) { }
   };
 
   // Manejar el borrar ruta
@@ -389,6 +391,25 @@ export function FloatingBoard({
     }
   };
 
+  // Mostrar qr para 2fa
+  const handleShowQr = async (username) => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_MY_BACKEND_API}/auth/2fa/qr`,
+        {
+          params: {
+            username: username,
+          },
+        }
+      );
+      setqrData(response.data.qrCodeDataURL);
+      console.log('✅ QR recibido:', response.data.qrCodeDataURL);
+      // Puedes usar esto en un <img src={response.data.qrCodeDataURL} />
+    } catch (error) {
+      console.error('❌ Error al obtener QR:', error.response?.data || error.message);
+    }
+  };
+
   // Obtener todos los comandos
   const fetchAllCommands = async () => {
     try {
@@ -396,9 +417,10 @@ export function FloatingBoard({
       const response = await axios.get(url, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `${authHeader}`,
         },
       });
+      console.log(response.data);
       return response.data;
     } catch (error) {
       console.log(error);
@@ -409,6 +431,8 @@ export function FloatingBoard({
   useEffect(() => {
     const loadCommand = async () => {
       const commandsRecibed = await fetchAllCommands();
+
+
       setcommands(commandsRecibed);
     };
     loadCommand();
@@ -427,8 +451,8 @@ export function FloatingBoard({
   // Filtrar dispositivos
   const filteredDevices = text
     ? devices.filter((device) =>
-        device.name.toLowerCase().includes(text.toLowerCase())
-      )
+      device.name.toLowerCase().includes(text.toLowerCase())
+    )
     : devices;
 
   // Cargar dispositivos
@@ -510,6 +534,7 @@ export function FloatingBoard({
 
   return (
     <div className={menu ? "floatingBoard" : "floatingBoardHidden"}>
+      <QrModal qrData={qrData} onClose={() => setqrData("")} />
       {/* Elemento de audio */}
       <audio
         ref={soundAlarmRef}
@@ -625,6 +650,8 @@ export function FloatingBoard({
               style={{ color: "white", fontSize: "24px", cursor: "pointer" }}
             ></i>
           </Link>
+          <i className="bx bx-qr-scan" style={{ color: "white", fontSize: "24px", cursor: "pointer" }}
+            onClick={() => handleShowQr(localStorage.getItem("username"))}></i>
         </div>
         {menu && (
           <div className="items-container">

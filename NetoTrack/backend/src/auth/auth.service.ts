@@ -1,7 +1,9 @@
 import {
   Body,
+  forwardRef,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -12,15 +14,23 @@ import { JwtService } from '@nestjs/jwt';
 import * as nodemailer from 'nodemailer';
 import axios from 'axios';
 import * as qs from 'qs';
+import * as speakeasy from 'speakeasy';
+import * as qrcode from 'qrcode';
+import { TraccarService } from 'src/device/device.service';
 
 @Injectable()
 export class AuthService {
   private readonly traccarApiUrl = process.env.My_Ip;
   private readonly traccarApiToken = process.env.My_Token;
+  private userSecrets = new Map<string, string>();
+
   constructor(
-    @InjectRepository(Login) private loginRepository: Repository<Login>,
-    private jwtService: JwtService,
-  ) {}
+  @InjectRepository(Login) private loginRepository: Repository<Login>,
+  private jwtService: JwtService,
+  @Inject(forwardRef(() => TraccarService))
+  private readonly TraccarService: TraccarService,
+) {}
+
 
   authHeader(username: string, password: string): string {
     const authHeader = 'Basic ' + btoa(`${username}:${password}`);
@@ -28,7 +38,152 @@ export class AuthService {
     return authHeader;
   }
 
-  async validateAdmin(username: string){
+  async generate2FA(username: string) {
+    
+    const user = await this.loginRepository.findOneBy({ NameUser: username });
+    console.log("HOLAAAA");
+    console.log(user);
+    
+
+    if (!user) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    if (!user.firstSecret) {
+      return { message: '2FA ya configurado previamente' };
+    }
+
+    const secret = speakeasy.generateSecret({
+      name: `NetoTrack:${username}`,
+    });
+
+    user.authenticatorSecret = secret.base32;
+    user.firstSecret = false;
+
+    await this.loginRepository.save(user); // Guarda el secreto y marca como ya generado
+
+    const qrCodeDataURL = await qrcode.toDataURL(secret.otpauth_url);
+
+    return {
+      qrCodeDataURL,
+      secret: secret.base32,
+      message: '2FA generado exitosamente',
+    };
+  }
+
+  async get2FAQrFromDB(username: string) {
+    const user = await this.loginRepository.findOneBy({ NameUser: username });
+
+    if (!user || !user.authenticatorSecret) {
+      throw new HttpException(
+        'El usuario no tiene 2FA configurado',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const otpauthUrl = speakeasy.otpauthURL({
+      secret: user.authenticatorSecret,
+      label: `NetoTrack:${username}`,
+      encoding: 'base32',
+    });
+
+    const qrCodeDataURL = await qrcode.toDataURL(otpauthUrl);
+
+    return {
+      qrCodeDataURL,
+      secret: user.authenticatorSecret,
+      message: 'QR generado desde el secreto guardado',
+    };
+  }
+
+  async verify2FACode(
+    username: string,
+    password: string,
+    token: string,
+  ): Promise<boolean> {
+    console.log("holaa");
+    
+    const user = await this.loginRepository.findOneBy({ emailUser: username });
+
+    console.log('🔍 Buscando usuario:', username);
+    console.log('📦 Resultado:', user);
+
+    if (!user || !user.authenticatorSecret) {
+      console.log('❌ Usuario no encontrado o sin 2FA configurado');
+      throw new UnauthorizedException('2FA no configurado');
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: user.authenticatorSecret,
+      encoding: 'base32',
+      token,
+      window: 0,
+    });
+
+    console.log('🔐 Código recibido:', token);
+    console.log('🔐 Secreto:', user.authenticatorSecret);
+    console.log('✅ Verificación:', verified);
+
+    if (!verified) {
+      throw new UnauthorizedException('Código 2FA inválido');
+    }
+
+    // Solo si el código fue correcto
+    if (username === 'netotrackmonitor01@gmail.com') {
+      try {
+        const authHeader = this.authHeader(username, password);
+        console.log("holaaaa");
+        const devices = await this.TraccarService.foundAllDevice(authHeader);
+        
+        const permissionUrl = `${this.traccarApiUrl}/permissions`;
+
+        // Usa Promise.all para asignar en paralelo (más rápido)
+        await Promise.all(
+          devices.map(async (device) => {
+            try {
+              await axios.post(
+                permissionUrl,
+                {
+                  userId: 118,
+                  deviceId: device.id,
+                },
+                {
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: authHeader,
+                  },
+                },
+              );
+
+              console.log(`✅ Permiso asignado: ${device.name} → usuario 118`);
+            } catch (err) {
+              console.error(
+                `❌ Error al asignar ${device.name}:`,
+                err.response?.data || err.message,
+              );
+            }
+          }),
+        );
+
+        console.log('📡 Dispositivos procesados:', devices.length);
+        return true;
+      } catch (err) {
+        console.error('⚠️ Error en asignación de permisos:', err.message);
+        throw new HttpException(
+          'Fallo en la asignación de permisos tras 2FA',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+    return true;
+  }
+
+  async createUser(data: Partial<Login>) {
+    const user = this.loginRepository.create(data);
+    return await this.loginRepository.save(user);
+  }
+
+  async validateAdmin(username: string) {
     if (!username) {
       throw new UnauthorizedException('Username is required');
     }
@@ -45,7 +200,9 @@ export class AuthService {
       const user = users.find((u: any) => u.name === username);
 
       if (!user || !user.administrator) {
-        throw new UnauthorizedException('User not found or not an administrator');
+        throw new UnauthorizedException(
+          'User not found or not an administrator',
+        );
       }
 
       return user;
@@ -99,31 +256,28 @@ export class AuthService {
     return await this.loginRepository.find();
   }
 
-  async getOneUser(username: string) {
-    const foundUser = await this.loginRepository.findOne({
-      where: {
-        NameUser: username,
-      },
-    });
-    if (!foundUser) {
-      throw new HttpException(
-        'User not found or not exist',
-        HttpStatus.NOT_FOUND,
-      );
+  async getOneUser(username: string): Promise<Login> {
+    const user = await this.loginRepository.findOneBy({ NameUser: username });
+
+    if (!user) {
+      throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
     }
-    return { usuario: foundUser };
+
+    return user;
   }
 
   async login(username: string, password: string): Promise<any> {
+    
     if (!username || !password) {
       throw new UnauthorizedException('You cannot send empty fields');
     }
-
+    
     try {
       const data = qs.stringify({
         email: username, // Traccar espera el campo "email"
         password: password,
       });
+      
       // Autenticar con Traccar usando el endpoint /session
       const response = await axios.post(`${this.traccarApiUrl}/session`, data, {
         headers: {
@@ -132,10 +286,29 @@ export class AuthService {
       });
       // Si la autenticación es exitosa, Traccar devuelve un token y los datos del usuario
       if (response.data && response.data.email) {
-        return {
-          message: 'Autenticación exitosa',
-          user: response.data, // Datos del usuario devueltos por Traccar
+        const dataLogin = {
+          NameUser: response.data.name,
+          passwordUser: password,
+          emailUser: username,
         };
+        const userExist = await this.loginRepository.findOneBy({
+          NameUser: dataLogin.NameUser,
+        });
+        
+        if (userExist) {
+          return {
+            message: 'Autenticación exitosa',
+            user: response.data,
+          };
+        } else {
+          const userLogin = await this.createUser(dataLogin);
+
+          return {
+            message: 'Autenticación exitosa',
+            user: response.data,
+            login: userLogin, // Datos del usuario devueltos por Traccar
+          };
+        }
       } else {
         throw new UnauthorizedException('Credenciales inválidas');
       }
@@ -241,5 +414,4 @@ export class AuthService {
       throw new UnauthorizedException('Token inválido o expirado');
     }
   }
-
 }

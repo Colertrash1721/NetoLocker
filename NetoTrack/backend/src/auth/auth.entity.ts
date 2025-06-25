@@ -1,12 +1,11 @@
-import {Entity, PrimaryGeneratedColumn, Column} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-
-@Entity('login') 
+@Entity('login')
 export class Login {
   @PrimaryGeneratedColumn()
   idUser: number;
 
-  @Column({ unique: true })
+  @Column()
   NameUser: string;
 
   @Column()
@@ -19,7 +18,8 @@ export class Login {
   creationDate: Date;
 
   @Column()
-  lastConnection: Date;
+  authenticatorSecret: string;
 
-
+  @Column({type: 'boolean', default: true})
+  firstSecret: boolean;
 }

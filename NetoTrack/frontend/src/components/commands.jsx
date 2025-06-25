@@ -3,6 +3,8 @@ import React from "react";
 import {useCommandAssignment} from "../hooks/useCommandAssigment";
 
 export default function Commands({ devices = [], selectedDevice = {}, Allcommands = [] }) {
+  console.log(Allcommands + "comandos");
+  
   const {
     command,
     setCommand,

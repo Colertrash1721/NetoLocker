@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { Routes } from 'src/routes/entities/route.entity';
@@ -11,7 +11,9 @@ export class TraccarService {
   private readonly TRACCAR_AUTH_TOKEN = process.env.My_Token;
 
   constructor(
-    @InjectRepository(Routes) private routeRepository: Repository<Routes>, private readonly authService: AuthService,
+    @InjectRepository(Routes) private routeRepository: Repository<Routes>,
+    @Inject(forwardRef(() => AuthService)) 
+    private readonly authService: AuthService,
   ) {}
 
   authHeader(username: string, password: string): string {
@@ -20,7 +22,7 @@ export class TraccarService {
     return authHeader;
   }
 
-  private getHeaders(username?: string, password?: string) {
+  public getHeaders(username?: string, password?: string) {
     if (username && password) {
       const header = this.authHeader(username, password);
       return {
@@ -33,6 +35,26 @@ export class TraccarService {
       Authorization: `Bearer ${this.TRACCAR_AUTH_TOKEN}`,
       'Content-Type': 'application/json',
     };
+  }
+
+  async foundAllDevice(headers?: any){
+    const urlDevice = `${this.TRACCAR_API_URL}/devices`;
+    
+    try {
+      const response = await axios.get(urlDevice, {headers: {
+        "Content-Type": "application/json",
+        Authorization: headers
+      }});
+      console.log("holaaaa");
+      const devices = response.data
+
+      return devices;
+    } catch (error) {
+      throw new HttpException(
+        `Error al encontrar dispositivos: ${error.response?.data?.message || error.message}`,
+        error.response?.status || HttpStatus.BAD_GATEWAY,
+      );
+    }
   }
   
   async foundDeviceById(deviceId: number, headers?: any) {
@@ -504,10 +526,7 @@ export class TraccarService {
       await Promise.all(updatePromises);
       return { success: true, updatedNotifications };
     } catch (error) {
-      throw new HttpException(
-        `Error al asignar eventos: ${error.response?.data?.message || error.message}`,
-        error.response?.status || HttpStatus.BAD_GATEWAY,
-      );
+      
     }
   }
 }
