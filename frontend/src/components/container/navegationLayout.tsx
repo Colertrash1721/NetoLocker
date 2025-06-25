@@ -26,7 +26,7 @@ export default function NavegationLayout() {
       />
       <Buttons
         className={`${className} border-r-transparent border-l-transparent`}
-        text="Precintos"
+        text="Carga suelta"
         link={"/container/freeload"}
         iconsB={<i className="bx bx-lock group-focus:text-[#111870]"></i>}
       />

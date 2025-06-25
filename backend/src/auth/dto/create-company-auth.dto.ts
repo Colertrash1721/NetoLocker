@@ -1,4 +1,12 @@
-import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  IsNumber,
+} from 'class-validator';
 
 export class CreateCompany {
   @IsNotEmpty()
@@ -12,7 +20,7 @@ export class CreateCompany {
   @IsString()
   @IsNotEmpty()
   password: string;
-  
+
   @IsNotEmpty()
   @IsPhoneNumber()
   phone: string;
@@ -20,4 +28,23 @@ export class CreateCompany {
   @IsNotEmpty()
   @IsString()
   contactPerson: string;
+
+  @IsOptional()
+  @IsString()
+  rnc?: string;
+
+  @IsOptional()
+  @IsString()
+  type?: string;
+
+  @IsOptional()
+  @IsString()
+  taxes?: string;
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === '' || value === undefined ? null : parseFloat(value),
+  )
+  @IsNumber({}, { message: 'El descuento debe ser un número válido' })
+  discount?: number;
 }

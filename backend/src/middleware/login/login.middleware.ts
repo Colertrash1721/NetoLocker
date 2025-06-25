@@ -19,6 +19,11 @@ export class LoginMiddleware implements NestMiddleware {
       const logsDir = path.join(process.cwd(), 'logs');
       const logPath = path.join(logsDir, 'login.log');
 
+      // ✅ Asegura que la carpeta 'logs' exista
+      if (!fs.existsSync(logsDir)) {
+        fs.mkdirSync(logsDir, { recursive: true });
+      }
+
       fs.appendFile(logPath, logLine, (err) => {
         if (err) {
           console.error('Error writing login log:', err);

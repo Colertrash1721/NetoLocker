@@ -15,7 +15,7 @@ export default function FormLayout() {
   };
 
   return (
-    <div className="forms text-black w-4/5 md:w-3/4 h-4/5 lg:w-3/4 bg-white rounded-lg shadow-md gap-4 overflow-hidden relative dark:bg-[#2D3137]">
+    <div className="forms text-black w-4/5 md:w-3/4 h-4/5 lg:w-3/4 bg-white rounded-lg shadow-md gap-4 overflow-y-auto relative dark:bg-[#2D3137]">
       <i 
         className='bx bx-menu absolute top-5 left-5 md:text-[0px] cursor-pointer z-20 text-2xl'
         onClick={toggleWall}
@@ -50,12 +50,12 @@ export default function FormLayout() {
           }
         />
         {showContainerForm && !wallExpanded && (
-          <div className="absolute top-0 right-0 h-full md:w-1/2 w-full transition-opacity duration-500 ease-in-out">
+          <div className="absolute inset-0 md:left-1/2 md:w-1/2 w-full md:h-full lg:h-full overflow-auto transition-opacity duration-500 ease-in-out">
             <ContainerForm />
           </div>
         )}
         {showSealsForm && !wallExpanded && (
-          <div className="absolute top-0 left-0 h-full md:w-1/2 w-full transition-opacity duration-500 ease-in-out">
+          <div className="absolute inset-0 md:right-1/2 md:w-1/2 w-full md:h-full lg:h-full overflow-hidden transition-opacity duration-500 ease-in-out">
             <SealsForm />
           </div>
         )}

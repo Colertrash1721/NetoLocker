@@ -14,6 +14,8 @@ export function EditModal({
     bl: row.BL || row.bl || "",
     port: row.port || "",
     destination: row.destination || "",
+    ncontainer: row.ncontainer || "",
+    fecha: row.fecha?.split("T")[0] || ""
   });
 
   const ubicaciones = ubicacionesData.ubicaciones;
@@ -71,6 +73,29 @@ export function EditModal({
             onChange={handleChange}
             placeholder="BL"
             className="border p-2 w-full"
+          />
+        </label>
+        {row.ncontainer && row.ncontainer.lenght > 0 &&
+          <label className="block mb-4">
+            <span className="block mb-1 font-medium">N# contenedor</span>
+            <input
+              name="ncontainer"
+              value={form.ncontainer}
+              onChange={handleChange}
+              placeholder="N# Contenedor"
+              className="border p-2 w-full"
+            />
+          </label>
+        }
+        <label className="block mb-4">
+          <span className="block mb-1 font-medium">Fecha estimada</span>
+          <input
+            name="fecha"
+            value={form.fecha}
+            onChange={handleChange}
+            placeholder="Fecha estimada"
+            className="border p-2 w-full"
+            type="datetime-local"
           />
         </label>
 

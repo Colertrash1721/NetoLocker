@@ -62,18 +62,6 @@ export default function TableLayout({ filter }: { filter?: any }) {
         const estimatedDate = item.estimatedDate ? dayjs(item.estimatedDate) : null;
         const hoursToDeparture = estimatedDate ? estimatedDate.diff(now, "hour", true) : null;
 
-        // Mostrar el modal si cumple condiciones
-        const shouldShowModal =
-          item.estado?.nombre === "pendiente" &&
-          hoursToDeparture !== null &&
-          hoursToDeparture <= 12 &&
-          hoursToDeparture >= 2;
-
-        if (shouldShowModal && !showEditModal) {
-          setEditRow(item);
-          setShowEditModal(true);
-        }
-
         return {
           ticket: pathname.includes("/freeload")
             ? `F-${item.idFreeload}`
@@ -90,13 +78,17 @@ export default function TableLayout({ filter }: { filter?: any }) {
                 ? "-"
                 : "Cancelar",
           fecha: item.estimatedDate?.split("T")[0] || "N/A",
-          editar: item.estado?.nombre === "pendiente" ? "bx bxs-pencil" : "-"
+          editar: item.estado?.nombre === "pendiente" &&
+          hoursToDeparture !== null &&
+          hoursToDeparture <= 12 &&
+          hoursToDeparture >= 2 ? "bx bxs-pencil" : "-"
+          
         };
       });
 
       setData(mappedData);
     };
-
+    setShowEditModal(false);
     fetchData();
     const interval = setInterval(() => {
       fetchData();
@@ -168,7 +160,9 @@ export default function TableLayout({ filter }: { filter?: any }) {
                 icon: "success"
               })
               setShowEditModal(false);
-              window.location.reload();
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000);
             } catch (error) {
               Swal.fire({
                 title: "Error",

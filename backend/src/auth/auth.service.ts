@@ -23,7 +23,7 @@ export class AuthService {
     @InjectRepository(Company) private companyRepository: Repository<Company>,
     @InjectRepository(Token) private tokenRepository: Repository<Token>,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async findAllAdmin() {
     return await this.adminRepository.find();
@@ -99,7 +99,8 @@ export class AuthService {
 
   async createCompany(createCompanyDto: CreateCompany) {
     const user = await this.findCompanyByEmail(createCompanyDto.email);
-    if (user) {
+    const admin = await this.findAdminByEmail(createCompanyDto.email)
+    if (user || admin) {
       throw new HttpException(
         'Este email ya es usado, si olvido su contraseña contactese con el administrador',
         HttpStatus.FOUND,
@@ -108,6 +109,11 @@ export class AuthService {
 
     const hash = await bcrypt.hash(createCompanyDto.password, 10);
     createCompanyDto.password = hash;
+
+    if (typeof createCompanyDto.discount !== 'number' || isNaN(createCompanyDto.discount)) {
+      createCompanyDto.discount = 0.00;
+    }
+
 
     return await this.companyRepository.save(createCompanyDto);
   }
@@ -119,26 +125,36 @@ export class AuthService {
         HttpStatus.BAD_GATEWAY,
       );
     }
+    
     try {
       const usersAdmin = await this.findAdminByEmail(email);
+      
+      
       if (!usersAdmin) {
         const usersCompany = await this.findCompanyByEmail(email);
         if (!usersCompany) {
+          console.log("No se encontro");
           throw new HttpException(
             'Usuario no encontrado',
             HttpStatus.NOT_FOUND,
           );
+          
         }
+        console.log("Es valida");
         const isPasswordValid = await bcrypt.compare(
           password,
           usersCompany.password,
         );
+        
         if (!isPasswordValid) {
+          console.log("Es invalida");
           throw new HttpException(
             'Contraseña incorrecta',
             HttpStatus.UNAUTHORIZED,
           );
         }
+        
+        
         await this.companyRepository.update(usersCompany.idCompany, {
           isOnline: true,
           lastConection: new Date(),
@@ -180,6 +196,8 @@ export class AuthService {
           },
         };
       }
+      
+      
       const isPasswordValid = await bcrypt.compare(
         password,
         usersAdmin.password,
@@ -232,7 +250,7 @@ export class AuthService {
       };
     } catch (error) {
       throw new HttpException(
-        'Credenciales inválidas',
+        `Credenciales inválidas`,
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -301,35 +319,42 @@ export class AuthService {
     }
   }
 
-  async deleteCompany(username: string){
-    const company = await this.findCompanyByUsername(username)
+  async deleteCompany(username: string) {
+    const company = await this.findCompanyByUsername(username);
     if (!company) {
-      return ;
+      throw new HttpException('Empresa no encontrada', HttpStatus.NOT_FOUND);
     }
-    return this.companyRepository.delete({companyName: username})
+
+    await this.companyRepository.manager.transaction(async (manager) => {
+      await manager.query('SET FOREIGN_KEY_CHECKS = 0');
+      await manager.delete('company', company.idCompany);
+      await manager.query('SET FOREIGN_KEY_CHECKS = 1');
+    });
+
+    return { message: 'Empresa eliminada correctamente' };
   }
 
-  async updateCompany(username: string, row: any){
+  async updateCompany(username: string, row: any) {
     const company = await this.findCompanyByUsername(username)
     if (!company) {
       throw new HttpException("La empresa no existe", HttpStatus.NOT_FOUND)
     }
-    
+
     const updatedFields = {
-    companyName: row.name,
-    email: row.email,
-    contactPerson: row.contactPerson,
-    rnc: row.rnc,
-    phone: row.cellphone,
-    type: row.companyType,
-  };
+      companyName: row.name,
+      email: row.email,
+      contactPerson: row.contactPerson,
+      rnc: row.rnc,
+      phone: row.cellphone,
+      type: row.companyType,
+    };
 
-  await this.companyRepository.update(company.idCompany, updatedFields);
+    await this.companyRepository.update(company.idCompany, updatedFields);
 
-  return {
-    message: "Empresa actualizada correctamente",
-    updated: updatedFields,
-  };
-    
+    return {
+      message: "Empresa actualizada correctamente",
+      updated: updatedFields,
+    };
+
   }
 }

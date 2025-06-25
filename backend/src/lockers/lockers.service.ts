@@ -30,7 +30,7 @@ export class LockersService {
     private FreeloadRepository: Repository<Freeload>,
     @InjectRepository(Estado)
     private EstadoRepository: Repository<Estado>,
-  ) {}
+  ) { }
   async findContainerByDate(date: string) {
     const containers = await this.ContainerRepository.createQueryBuilder('c')
       .innerJoinAndSelect('c.estado', 'e')
@@ -182,37 +182,69 @@ export class LockersService {
   async updateStateContainer(id: number, state: string) {
     const container = await this.ContainerRepository.findOne({
       where: { idContainer: id },
+      relations: ['estado'], // asegúrate de cargar la relación
     });
+
     if (!container) {
       throw new HttpException('Contenedor no encontrado', HttpStatus.NOT_FOUND);
     }
-    if (state === 'pendiente') {
-      container.idEstado = 2;
-      return await this.ContainerRepository.save(container);
+
+    let newEstadoId: number;
+    if (state === 'pendiente') newEstadoId = 2;
+    else if (state === 'aceptado') newEstadoId = 3;
+    else throw new HttpException('Estado inválido', HttpStatus.BAD_REQUEST);
+
+    // Buscar objeto estado
+    const estado = await this.EstadoRepository.findOne({
+      where: { idEstado: newEstadoId },
+    });
+    if (!estado) {
+      throw new HttpException('Estado no encontrado', HttpStatus.NOT_FOUND);
     }
+
+    container.estado = estado;
+
     if (state === 'aceptado') {
-      container.idEstado = 3;
       await this.RoutesService.deleteRouteByDeviceName(container.deviceName);
-      return await this.ContainerRepository.save(container);
     }
+
+    return await this.ContainerRepository.save(container);
   }
 
   async updateStateFreeload(id: number, state: string) {
     const freeload = await this.FreeloadRepository.findOne({
       where: { idFreeload: id },
     });
+
     if (!freeload) {
       throw new HttpException('Precinto no encontrado', HttpStatus.NOT_FOUND);
     }
+
+    let estadoId: number;
     if (state === 'pendiente') {
-      freeload.idEstado = 2;
-      return await this.FreeloadRepository.save(freeload);
+      estadoId = 2;
+    } else if (state === 'aceptado') {
+      estadoId = 3;
+    } else {
+      throw new HttpException('Estado inválido', HttpStatus.BAD_REQUEST);
     }
+
+    // ✅ Buscar y asignar el objeto Estado (NO el número)
+    const estado = await this.EstadoRepository.findOne({
+      where: { idEstado: estadoId },
+    });
+
+    if (!estado) {
+      throw new HttpException('Estado no encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    freeload.estado = estado;
+
     if (state === 'aceptado') {
-      freeload.idEstado = 3;
       await this.RoutesService.deleteRouteByDeviceName(freeload.deviceName);
-      return await this.FreeloadRepository.save(freeload);
     }
+
+    return await this.FreeloadRepository.save(freeload);
   }
 
   async updateContainerDeviceName(id: number, deviceName: string, row: any) {

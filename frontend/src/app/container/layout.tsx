@@ -6,6 +6,7 @@ import FiltersLayout from "@/components/container/filtersLayout";
 import TableLayout from "@/components/container/tableLayout";
 import { usePathname } from "next/navigation";
 import { LoadScript } from "@react-google-maps/api";
+import SocialIcons from "@/components/ui/socialBar";
 
 export default function RootLayout({
   children,
@@ -25,7 +26,7 @@ export default function RootLayout({
     date: "",
   });
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFilter((prev) => ({ ...prev, [name]: value }));
   };
@@ -46,6 +47,7 @@ export default function RootLayout({
                   onFilterChange={handleFilterChange}
                 />
                 <TableLayout filter={filter} />
+              <SocialIcons />
               </section>
             </div>
           )}
