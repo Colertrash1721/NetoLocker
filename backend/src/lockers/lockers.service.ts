@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import axios from 'axios';
 import ubicacionesData from '../data/locations.json';
 
@@ -21,6 +21,7 @@ import { RoutesService } from 'src/routes/routes.service';
 @Injectable()
 export class LockersService {
   constructor(
+    private dataSource: DataSource,
     private readonly DevicesService: DevicesService,
     private readonly RoutesService: RoutesService,
     private readonly AuthService: AuthService,
@@ -182,22 +183,22 @@ export class LockersService {
   async updateStateContainer(id: number, state: string) {
     const container = await this.ContainerRepository.findOne({
       where: { idContainer: id },
-      relations: ['estado'], // asegúrate de cargar la relación
+      relations: ['estado'], // Cargar relación actual
     });
 
     if (!container) {
       throw new HttpException('Contenedor no encontrado', HttpStatus.NOT_FOUND);
     }
 
-    let newEstadoId: number;
-    if (state === 'pendiente') newEstadoId = 2;
-    else if (state === 'aceptado') newEstadoId = 3;
+    let estadoId: number;
+    if (state === 'pendiente') estadoId = 2;
+    else if (state === 'aceptado') estadoId = 3;
     else throw new HttpException('Estado inválido', HttpStatus.BAD_REQUEST);
 
-    // Buscar objeto estado
     const estado = await this.EstadoRepository.findOne({
-      where: { idEstado: newEstadoId },
+      where: { idEstado: estadoId },
     });
+
     if (!estado) {
       throw new HttpException('Estado no encontrado', HttpStatus.NOT_FOUND);
     }
@@ -208,51 +209,82 @@ export class LockersService {
       await this.RoutesService.deleteRouteByDeviceName(container.deviceName);
     }
 
-    return await this.ContainerRepository.save(container);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.query('SET FOREIGN_KEY_CHECKS = 0');
+      await queryRunner.manager.save(Container, container);
+      await queryRunner.query('SET FOREIGN_KEY_CHECKS = 1');
+      await queryRunner.commitTransaction();
+      return container;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new HttpException('Error al actualizar el estado', HttpStatus.INTERNAL_SERVER_ERROR);
+    } finally {
+      await queryRunner.release();
+    }
   }
+
 
   async updateStateFreeload(id: number, state: string) {
     const freeload = await this.FreeloadRepository.findOne({
       where: { idFreeload: id },
+      relations: ['estado'],
     });
 
     if (!freeload) {
       throw new HttpException('Precinto no encontrado', HttpStatus.NOT_FOUND);
     }
 
+    
+    
     let estadoId: number;
-    if (state === 'pendiente') {
-      estadoId = 2;
-    } else if (state === 'aceptado') {
-      estadoId = 3;
-    } else {
-      throw new HttpException('Estado inválido', HttpStatus.BAD_REQUEST);
-    }
-
-    // ✅ Buscar y asignar el objeto Estado (NO el número)
+    if (state === 'pendiente') estadoId = 2;
+    else if (state === 'aceptado') estadoId = 3;
+    else throw new HttpException('Estado inválido', HttpStatus.BAD_REQUEST);
+    
     const estado = await this.EstadoRepository.findOne({
       where: { idEstado: estadoId },
     });
-
+    
     if (!estado) {
       throw new HttpException('Estado no encontrado', HttpStatus.NOT_FOUND);
     }
-
+    
     freeload.estado = estado;
-
+    
     if (state === 'aceptado') {
+      console.log("Eliminando ruta por dispositivo:", freeload.deviceName);
+      
       await this.RoutesService.deleteRouteByDeviceName(freeload.deviceName);
     }
+    
 
-    return await this.FreeloadRepository.save(freeload);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.query('SET FOREIGN_KEY_CHECKS = 0');
+      await queryRunner.manager.save(Freeload, freeload);
+      await queryRunner.query('SET FOREIGN_KEY_CHECKS = 1');
+      await queryRunner.commitTransaction();
+      return freeload;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new HttpException('Error al actualizar el estado', HttpStatus.INTERNAL_SERVER_ERROR);
+    } finally {
+      await queryRunner.release();
+    }
   }
+
 
   async updateContainerDeviceName(id: number, deviceName: string, row: any) {
     const container = await this.ContainerRepository.findOne({
       where: { idContainer: id },
     });
-    console.log('Puerto de salida recibido:', row.port);
-    console.log('Puerto de destino recibido:', row.destination);
 
     if (!container) {
       throw new HttpException('Contenedor no encontrado', HttpStatus.NOT_FOUND);
@@ -260,15 +292,20 @@ export class LockersService {
 
     container.deviceName = deviceName;
 
+    console.log('Actualizando deviceName de contenedor:', container.idContainer, 'a', deviceName);
+    
     const updated = await this.ContainerRepository.save(container);
+    console.log('Contenedor actualizado:', updated);
+    
     // Buscar coordenadas
     const origen = ubicacionesData.ubicaciones.find(
-      (u) => u.nombre.toLowerCase().trim() === row.port.toLowerCase().trim(),
+      (u) => u.nombre.toLowerCase().trim() === row.puerto.toLowerCase().trim(),
     );
     const destino = ubicacionesData.ubicaciones.find(
       (u) =>
-        u.nombre.toLowerCase().trim() === row.destination.toLowerCase().trim(),
+        u.nombre.toLowerCase().trim() === row.destino.toLowerCase().trim(),
     );
+
 
     if (!origen || !destino) {
       throw new HttpException(
@@ -276,7 +313,6 @@ export class LockersService {
         HttpStatus.BAD_REQUEST,
       );
     }
-
     // Crear ruta
     await this.RoutesService.createRoute({
       device_Name: deviceName,
@@ -284,7 +320,10 @@ export class LockersService {
       Startlongitud: origen.longitud.toString(),
       Endlatitud: destino.latitud.toString(),
       Endlongitud: destino.longitud.toString(),
+      rute_Name: `${origen.nombre} - ${destino.nombre}`,
     });
+
+    
     return {
       message: 'deviceName actualizado correctamente',
       data: updated,
@@ -302,29 +341,42 @@ export class LockersService {
 
     freeload.deviceName = deviceName;
 
+    console.log('Actualizando deviceName de freeload:', freeload.idFreeload, 'a', deviceName);
     const updated = await this.FreeloadRepository.save(freeload);
+    console.log('Freeload actualizado:', updated);
+
     const origen = ubicacionesData.ubicaciones.find(
-      (u) => u.nombre.toLowerCase().trim() === row.port.toLowerCase().trim(),
+      (u) => u.nombre.toLowerCase().trim() === row.puerto.toLowerCase().trim(),
     );
     const destino = ubicacionesData.ubicaciones.find(
       (u) =>
-        u.nombre.toLowerCase().trim() === row.destination.toLowerCase().trim(),
+        u.nombre.toLowerCase().trim() === row.destino.toLowerCase().trim(),
     );
 
+    
+    
     if (!origen || !destino) {
       throw new HttpException(
         'Ubicación no encontrada en el JSON',
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    await this.RoutesService.createRoute({
-      device_Name: deviceName,
-      Startlatitud: origen.latitud.toString(),
-      Startlongitud: origen.longitud.toString(),
-      Endlatitud: destino.latitud.toString(),
-      Endlongitud: destino.longitud.toString(),
-    });
+    
+    console.log('Creando ruta para freeload:', deviceName, 'desde', origen.nombre, 'a', destino.nombre);
+    try {
+      await this.RoutesService.createRoute({
+        device_Name: deviceName,
+        Startlatitud: origen.latitud.toString(),
+        Startlongitud: origen.longitud.toString(),
+        Endlatitud: destino.latitud.toString(),
+        Endlongitud: destino.longitud.toString(),
+        rute_Name: `${origen.nombre} - ${destino.nombre}`,
+      });
+      
+    } catch (error) {
+      console.log('Error al crear ruta para freeload:', error);
+      
+    }
     return {
       message: 'deviceName actualizado correctamente',
       data: updated,
@@ -433,6 +485,7 @@ export class LockersService {
       }
       const freeload = this.FreeloadRepository.create({
         ...CreateFrealoadDto,
+        BL: CreateFrealoadDto.bl,
         idCompany: company.idCompany,
       });
       const saved = await this.FreeloadRepository.save(freeload);
@@ -465,7 +518,6 @@ export class LockersService {
     const container = await this.ContainerRepository.findOne({
       where: { idContainer: id },
     });
-    console.log('holaaa');
 
     if (container) {
       const deviceName = container.deviceName;

@@ -1,59 +1,419 @@
 {
   "ubicaciones": [
     {
-      "nombre": "Puerto Rio Haina",
+      "nombre": "PUERTO RIO HAINA",
       "latitud": 18.4222,
       "longitud": -70.0333
     },
     {
-      "nombre": "Puerto San Soucí",
-      "latitud": 18.4705,
-      "longitud": -69.8686
-    },
-    {
-      "nombre": "Caucedo DPW",
+      "nombre": "CAUCEDO DPW",
       "latitud": 18.4258,
       "longitud": -69.6242
     },
     {
-      "nombre": "Puerto La Romana",
+      "nombre": "PUERTO LA ROMANA",
       "latitud": 18.4239,
       "longitud": -68.9712
     },
     {
-      "nombre": "ZF San Pedro",
+      "nombre": "ZF SAN PEDRO",
       "latitud": 18.4626,
       "longitud": -69.2965
     },
     {
-      "nombre": "ZF las americas",
+      "nombre": "ZF LAS AMERICAS",
       "latitud": 18.4486,
       "longitud": -69.6575
     },
     {
-      "nombre": "ZF la Romana",
+      "nombre": "ZF LA ROMANA",
       "latitud": 18.4384,
       "longitud": -68.9610
     },
     {
-      "nombre": "ZF Industrial de Santiago",
+      "nombre": "ZF INDUSTRIAL DE SANTIAGO",
       "latitud": 19.4705,
       "longitud": -70.6989
     },
     {
-      "nombre": "ZF Parque Industrial del Cibao",
+      "nombre": "ZF PARQUE INDUSTRIAL DEL CIBAO",
       "latitud": 19.4637,
       "longitud": -70.6703
     },
     {
-      "nombre": "Aereo Puerto Internacional De Las Américas",
+      "nombre": "AEREO PUERTO INTERNACIONAL DE LAS AMÉRICAS",
       "latitud": 18.4295,
       "longitud": -69.6689
     },
     {
-      "nombre": "Producto del tabaco(Santiago)",
+      "nombre": "PRODUCTO DEL TABACO(SANTIAGO)",
       "latitud": 19.4519,
       "longitud": -70.6985
+    },
+    {
+      "nombre": "TD BONDED",
+      "latitud": 18.416667,
+      "longitud": -70.016667
+    },
+    {
+      "nombre": "DOMINICAN INTERNATIONAL FORWARDING",
+      "latitud": 18.480000,
+      "longitud": -69.930000
+    },
+    {
+      "nombre": "DEPÓSITO GLOBAL STORAGE",
+      "latitud": 18.480000,
+      "longitud": -69.930000
+    },
+    {
+      "nombre": "DEPOSITO DAMA SA (AILA)",
+      "latitud": 18.52613,
+      "longitud": -69.88357
+    },
+    {
+      "nombre": "TERMINALES HAINA S.A (MARITIMA DOMINICANA)",
+      "latitud": 18.416667,
+      "longitud": -70.016667
+    },
+    {
+      "nombre": "KUEHNE+NAGEL",
+      "latitud": "18.47317",
+      "longitud": "-69.93123"
+    },
+    {
+      "nombre": "LYN CARGO",
+      "latitud": "18.45254",
+      "longitud": "-69.94799"
+    },
+    {
+      "nombre": "MAERSK SEALAND LINE",
+      "latitud": "18.47573",
+      "longitud": "-69.93434"
+    },
+    {
+      "nombre": "MARFRET",
+      "latitud": "18.465650",
+      "longitud": "-69.883500"
+    },
+    {
+      "nombre": "MARINE EXPRESS INC",
+      "latitud": "26.1224",
+      "longitud": "-80.1373"
+    },
+    {
+      "nombre": "MARITIMA DEL CARIBE",
+      "latitud": "18.42741",
+      "longitud": "-70.00873"
+    },
+    {
+      "nombre": "MSC",
+      "latitud": "18.47221",
+      "longitud": "-69.92882"
+    },
+    {
+      "nombre": "OCEAN NETWORK EXPRESS (ONE)",
+      "latitud": "35.6895",
+      "longitud": "139.6917"
+    },
+    {
+      "nombre": "OOCL",
+      "latitud": "18.45677",
+      "longitud": "-69.93201"
+    },
+    {
+      "nombre": "P&D RECYCLING, QUITASUEÑO DE HAINA",
+      "latitud": "18.45868",
+      "longitud": "-70.01747"
+    },
+    {
+      "nombre": "PARQUE INDUSTRIAL DUARTE",
+      "latitud": "18.55690",
+      "longitud": "-70.05481"
+    },
+    {
+      "nombre": "PLANTA-SMURFIT KAPPA",
+      "latitud": "18.49612",
+      "longitud": "-69.91374"
+    },
+    {
+      "nombre": "PRIORITY RO-RO SERVICES",
+      "latitud": "18.47022",
+      "longitud": "-69.88330"
+    },
+    {
+      "nombre": "PUERTO-LA CANA",
+      "latitud": "18.43943",
+      "longitud": "-69.25237"
+    },
+    {
+      "nombre": "PUERTO-MULTIMODAL CAUCEDO",
+      "latitud": "18.42926",
+      "longitud": "-69.63389"
+    },
+    {
+      "nombre": "PUERTO-SANSOUCI",
+      "latitud": "18.47176",
+      "longitud": "-69.87732"
+    },
+    {
+      "nombre": "PUERTO-SANTO DOMINGO",
+      "latitud": "18.46024",
+      "longitud": "-69.93407"
+    },
+    {
+      "nombre": "PARQUE CIBERNETICO DE SANTO DOMINGO",
+      "latitud": "18.45326",
+      "longitud": "-69.66216"
+    },
+    {
+      "nombre": "PUERTO-BOCA CHICA",
+      "latitud": "18.448610",
+      "longitud": "-69.609002"
+    },
+    {
+      "nombre": "SAVINO DEL BENE",
+      "latitud": "18.47094",
+      "longitud": "-69.94123"
+    },
+    {
+      "nombre": "SEABOARD MARINE",
+      "latitud": "18.42584",
+      "longitud": "-70.00201"
+    },
+    {
+      "nombre": "TRANSPORTE ALMANZAR",
+      "latitud": "18.42389",
+      "longitud": "-70.04965"
+    },
+    {
+      "nombre": "TRUCKSLOGIC DOMINICANA , S.A.S",
+      "latitud": "18.49304",
+      "longitud": "-69.97645"
+    },
+    {
+      "nombre": "TORRE SONORA",
+      "latitud": "18.48144066",
+      "longitud": "-69.93843913"
+    },
+    {
+      "nombre": "ZONA FRANCA-BOCA CHICA",
+      "latitud": "18.42616",
+      "longitud": "-69.63525"
+    },
+    {
+      "nombre": "ZONA FRANCA-BONAO",
+      "latitud": "18.92490",
+      "longitud": "-70.40317"
+    },
+    {
+      "nombre": "ZONA FRANCA-CHEM TEC",
+      "latitud": "18.45703",
+      "longitud": "-69.28593"
+    },
+    {
+      "nombre": "ZONA FRANCA-ESPECIAL INETAB",
+      "latitud": "19.38813",
+      "longitud": "-70.53824"
+    },
+    {
+      "nombre": "ZONA FRANCA-ESPECIAL PANTOJA",
+      "latitud": "18.53045",
+      "longitud": "-70.01103"
+    },
+    {
+      "nombre": "ZONA FRANCA-ESPECIAL SAN ISIDRO",
+      "latitud": "18.49924",
+      "longitud": "-69.79171"
+    },
+    {
+      "nombre": "ZONA FRANCA-GUERRA",
+      "latitud": "18.5091",
+      "longitud": "-69.7558"
+    },
+    {
+      "nombre": "ZONA FRANCA-HAINAMOSA",
+      "latitud": "18.51406",
+      "longitud": "‑69.81628"
+    },
+    {
+      "nombre": "ZONA FRANCA-HATO MAYOR",
+      "latitud": "18.7628",
+      "longitud": "‑69.2568"
+    },
+    {
+      "nombre": "ZONA FRANCA-HATO NUEVO",
+      "latitud": "18.783",
+      "longitud": "–69.717"
+    },
+    {
+      "nombre": "ZONA FRANCA-INDUSTRIAL BELLA VISTA",
+      "latitud": "18.4554",
+      "longitud": "–69.9454"
+    },
+    {
+      "nombre": "ZONA FRANCA INTERCONTINENTAL",
+      "latitud": "18.56031",
+      "longitud": "-70.07027"
+    },
+    {
+      "nombre": "GRUPO BANAMIEL, S.A.S",
+      "latitud": "19.66840",
+      "longitud": "71.19383"
+    },
+    {
+      "nombre": "ZONA FRANCA ARMERIA",
+      "latitud": "18.42145",
+      "longitud": "-70.11771"
+    },
+    {
+      "nombre": "ZONA FRANCA LA FLOR",
+      "latitud": "18.4833",
+      "longitud": "-69.9269"
+    },
+    {
+      "nombre": "ZONA FRANCA LA PALMA",
+      "latitud": "19.47964",
+      "longitud": "-70.59745"
+    },
+    {
+      "nombre": "ZONA FRANCA LA VEGA",
+      "latitud": "19.24651",
+      "longitud": "-70.55492"
+    },
+    {
+      "nombre": "ZONA FRANCA LOS ALCARRIZOS",
+      "latitud": "18.52132",
+      "longitud": "-70.05104"
+    },
+    {
+      "nombre": "ZONA FRANCA MATANZA SANTIAGO",
+      "latitud": "19.48052",
+      "longitud": "-70.72662"
+    },
+    {
+      "nombre": "ZONA FRANCA MOCA",
+      "latitud": "19.39018",
+      "longitud": "-70.53725"
+    },
+    {
+      "nombre": "ZONA FRANCA NAVARRETE",
+      "latitud": "19.56838",
+      "longitud": "-70.87286"
+    },
+    {
+      "nombre": "ZONA FRANCA NIGUA",
+      "latitud": "18.39106",
+      "longitud": "-70.04563"
+    },
+    {
+      "nombre": "ZONA FRANCA NORTE INFIESTO",
+      "latitud": "18.49203",
+      "longitud": "-69.98520"
+    },
+    {
+      "nombre": "ZONA FRANCA PIISA",
+      "latitud": "18.39403",
+      "longitud": "-70.03886"
+    },
+    {
+      "nombre": "ZONA FRANCA PISANO",
+      "latitud": "19.50599",
+      "longitud": "-70.75797"
+    },
+    {
+      "nombre": "ZONA FRANCA RIOSUR",
+      "latitud": "18.45257",
+      "longitud": "-69.28925"
+    },
+    {
+      "nombre": "ZONA FRANCA-SAN CRISTOBAL",
+      "latitud": "18.46287",
+      "longitud": "-70.08919"
+    },
+    {
+      "nombre": "ZONA FRANCA SAN PEDRO CHEM TEC",
+      "latitud": "18.45708",
+      "longitud": "-69.28584"
+    },
+    {
+      "nombre": "ZONA FRANCA SEIN",
+      "latitud": "19.455",
+      "longitud": "–70.712"
+    },
+    {
+      "nombre": "ZONA FRANCA TAMBORIL",
+      "latitud": "19.48256",
+      "longitud": "-70.63298"
+    },
+    {
+      "nombre": "ZONA FRANCA VELAS HISPANIOLA",
+      "latitud": "18.53667",
+      "longitud": "-70.72484"
+    },
+    {
+      "nombre": "ZONA FRANCA VICTOR ESPALLIAT MERA",
+      "latitud": "19.47630",
+      "longitud": "-70.73254"
+    },
+    {
+      "nombre": "ZONA FRANCA VILLA ALTAGRACIA",
+      "latitud": "18.67297",
+      "longitud": "–70.17095"
+    },
+    {
+      "nombre": "ZONA FRANCA VILLA MELLA",
+      "latitud": "18.52175129",
+      "longitud": "-69.90316272"
+    },
+    {
+      "nombre": "DRE REPAIR SERVICES SRL",
+      "latitud": "18.45272",
+      "longitud": "-69.66167"
+    },
+    {
+      "nombre": "ZONA FRANCA GURABO",
+      "latitud": "91.48855",
+      "longitud": "-70.65831"
+    },
+    {
+      "nombre": "ZONA FRANCA INDUSTRIAL (ETAPA III), SANTIAGO",
+      "latitud": "19.47394",
+      "longitud": "–70.73015"
+    },
+    {
+      "nombre": "ZONA FRANCA INDUSTRIAL DE VILLA MELLA",
+      "latitud": "18.52258",
+      "longitud": "-69.90205"
+    },
+    {
+      "nombre": "ZONA FRANCA LA ESPERANZA",
+      "latitud": "19.59398",
+      "longitud": "-70.97902"
+    },
+    {
+      "nombre": "ZONA FRANCA MATANZAS SANTIAGO",
+      "latitud": "19.448",
+      "longitud": "-70.790"
+    },
+    {
+      "nombre": "ZONA FRANCA MULTIMODAL CAUCEDO",
+      "latitud": "18.42601",
+      "longitud": "-69.63518"
+    },
+    {
+      "nombre": "ZONA FRANCA GLOBAL INDUSTRIAL",
+      "latitud": "18.52987",
+      "longitud": "-70.01182"
+    },
+    {
+      "nombre": "ZONA FRANCA CARIBBEAN INDUSTRIAL PARK",
+      "latitud": "19.40876",
+      "longitud": "–70.66124"
+    },
+    {
+      "nombre": "ZONA FRANCA HERRERA",
+      "latitud": "18.44068",
+      "longitud": "-69.98176"
     }
   ]
 }

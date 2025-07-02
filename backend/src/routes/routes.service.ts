@@ -45,11 +45,12 @@ export class RoutesService {
   }
   
   async deleteRouteByDeviceName(deviceName: string) {
-  const foundRoute = await this.routeRepository.findOne({
-    where: {
-      device_Name: deviceName,
-    },
-  });
+    const foundRoute = await this.routeRepository.findOne({
+      where: {
+        device_Name: deviceName,
+      },
+    });
+    console.log("Holaaaa");
 
   if (!foundRoute) {
     throw new HttpException(
@@ -57,6 +58,8 @@ export class RoutesService {
       HttpStatus.NOT_FOUND,
     );
   }
+
+  
 
   await this.routeRepository.remove(foundRoute);
 

@@ -37,6 +37,7 @@ export class LockersController {
     @Body() body: { CreateFrealoadDto: CreateFrealoadDto; companyName: string },
   ) {
     const { CreateFrealoadDto, companyName } = body;
+    console.log(CreateFrealoadDto, companyName);
     return this.lockersService.createFreeload(CreateFrealoadDto, companyName);
   }
   @Get('container/search-by-date')

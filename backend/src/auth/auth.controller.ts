@@ -70,4 +70,10 @@ export class AuthController {
     const {row} = body;
     return this.authService.updateCompany(username, row)
   }
+  @Patch('update/password/:username')
+  updatePassword(@Param('username') username: string,
+  @Body() body: { oldPassword: string; newPassword: string }) {
+    const { oldPassword, newPassword } = body;
+    return this.authService.updatePassword(username, oldPassword, newPassword);
+  }
 }

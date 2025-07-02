@@ -18,11 +18,10 @@ export default function RootLayout({
 }) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!;
   return (
-    <html lang="en">
-      <body className={`${comfortaa.className}`}>
-        <LoadScript googleMapsApiKey={apiKey}>
+    <html lang="en" className="h-full">
+      <body className={`${comfortaa.className} bg-gray-100 dark:bg-[#1A1D21] min-h-screen`}>
           <main
-            className={`grid grid-cols-[18%_82%] w-full h-screen bg-gray-100 dark:bg-[#1A1D21]`}
+            className={`grid sm:grid-1 md:grid-cols-[18%_82%] w-full min-h-screen bg-gray-100 dark:bg-[#1A1D21]`}
           >
             <AsideBar />
             {children}
@@ -30,7 +29,6 @@ export default function RootLayout({
               <OneButtonDarkMode />
             </div>
           </main>
-        </LoadScript>
       </body>
     </html>
   );

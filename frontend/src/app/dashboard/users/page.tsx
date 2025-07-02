@@ -11,7 +11,7 @@ export default function page() {
   const { showOptions, handleShowOptions } = useDropdown();
   const {option, handleOption} = useHandleOptions();
   return (
-    <div className="h-screen">
+    <div className="min-h-screen">
       <DashboardCardLayout />
       <div className="flex w-full relative texl-lg justify-end p-2">
         <button className="cursor-pointer p-4 w-3xs rounded-lg bg-gradient-to-br from-[#a65eff] via-[#7E88FF] to-[#58A7FF] text-white flex justify-between items-center dark:from-[#1a1c1e] dark:via-[#2a2d31] dark:to-[#1a1c1e]" onClick={handleShowOptions}>
@@ -26,7 +26,7 @@ export default function page() {
       {option === "listar" ? 
         <TableCompaniesLayout />
       : (
-      <section className="grid grid-cols-2 gap-3 p-2 h-2/4">
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-3 p-2 h-auto">
         <CompanyForms />
         <AdminForm />
       </section>

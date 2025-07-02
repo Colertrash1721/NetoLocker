@@ -8,7 +8,9 @@ export default function ContainerForm() {
   const { containerValues, handleSubmitContainer, handleContainerChange } =
     useContainerValues();
 
-  const ubicaciones = ubicacionesData.ubicaciones;
+   const ubicaciones = [...ubicacionesData.ubicaciones].sort((a, b) =>
+    a.nombre.localeCompare(b.nombre)
+  );
 
   useEffect(() => {
     console.log(ubicaciones);

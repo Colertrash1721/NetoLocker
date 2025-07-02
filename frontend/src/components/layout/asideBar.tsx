@@ -26,7 +26,7 @@ export default function AsideBar() {
       <aside
         className={`${
           isOpen ? "fixed" : "hidden"
-        } z-40 top-0 left-0 h-screen w-full dark:bg-[#13151B] dark:text-gray-500 bg-[#050D68] 
+        } z-40 top-0 left-0 h-[100%] w-full dark:bg-[#13151B] dark:text-gray-500 bg-[#050D68] 
         text-white md:block md:w-64 md:relative`}
       >
         <nav

@@ -19,7 +19,7 @@ export default function Page() {
   if (!hasMounted) return null;
 
   return (
-    <section className='grid grid-rows-[40%_60%] h-screen p-6 gap-2'>
+    <section className='grid grid-rows-[40%_60%] min-h-screen p-6 gap-2'>
       <div className="w-full h-full">
         <GoogleMapComponent />
       </div>

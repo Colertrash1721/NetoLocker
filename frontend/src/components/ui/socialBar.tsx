@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Swal from "sweetalert2";
 
 const icons = [
   { className: "bx bx-home", link: "https://netotrack.com", text: "Netotrack.com", action: "link" },
@@ -19,7 +18,7 @@ export default function SocialIcons() {
       setCopied(item.text);
       setTimeout(() => setCopied(null), 2000);
     } else if (item.action === "whatsapp") {
-      const url = `https://api.whatsapp.com/send?phone=${item.link}&text='Buenas`;
+      const url = `https://api.whatsapp.com/send?phone=${item.link}&text=Buenas `;
       window.open(url, "_blank");
     }
   };

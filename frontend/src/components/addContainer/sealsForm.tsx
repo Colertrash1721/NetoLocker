@@ -8,7 +8,10 @@ export default function SealsForm() {
   const { sealsValues, handleSealsSubmit, handleSealsChange } =
     useSealsValues();
 
-  const ubicaciones = ubicacionesData.ubicaciones;
+  // Copiamos y ordenamos las ubicaciones por nombre alfabéticamente
+  const ubicaciones = [...ubicacionesData.ubicaciones].sort((a, b) =>
+    a.nombre.localeCompare(b.nombre)
+  );
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -70,7 +73,7 @@ export default function SealsForm() {
           type="text"
           value={sealsValues.bl}
           name="bl"
-          label="Bill of lading"
+          label="Bill of lading / Guía aérea"
           onChange={handleSealsChange}
         />
         <Inputs

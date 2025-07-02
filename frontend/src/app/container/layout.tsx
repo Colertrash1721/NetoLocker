@@ -32,8 +32,6 @@ export default function RootLayout({
   };
 
   return (
-    
-      <LoadScript googleMapsApiKey={apiKey}>
         <main className="grid grid-rows-[10%_90%] h-screen">
           <Header />
           {isAddContainer ? (
@@ -52,7 +50,5 @@ export default function RootLayout({
             </div>
           )}
         </main>
-      </LoadScript>
-    
   );
 }

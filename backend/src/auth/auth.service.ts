@@ -133,21 +133,18 @@ export class AuthService {
       if (!usersAdmin) {
         const usersCompany = await this.findCompanyByEmail(email);
         if (!usersCompany) {
-          console.log("No se encontro");
           throw new HttpException(
             'Usuario no encontrado',
             HttpStatus.NOT_FOUND,
           );
           
         }
-        console.log("Es valida");
         const isPasswordValid = await bcrypt.compare(
           password,
           usersCompany.password,
         );
         
         if (!isPasswordValid) {
-          console.log("Es invalida");
           throw new HttpException(
             'Contraseña incorrecta',
             HttpStatus.UNAUTHORIZED,
@@ -356,5 +353,33 @@ export class AuthService {
       updated: updatedFields,
     };
 
+  }
+
+  async updatePassword(
+    username: string,
+    oldPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.findAdminByUsername(username) || await this.findCompanyByUsername(username);
+    
+    if (!user) {
+      throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+      throw new HttpException('Contraseña incorrecta', HttpStatus.UNAUTHORIZED);
+    }
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    user.password = hash;
+
+    if (user instanceof Admin) {
+      await this.adminRepository.save(user);
+    } else {
+      await this.companyRepository.save(user);
+    }
+
+    return { message: 'Contraseña actualizada correctamente' };
   }
 }

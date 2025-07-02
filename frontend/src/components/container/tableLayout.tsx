@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { useRouter } from "next/navigation";
+
 
 /* COMPONENTS AND HOOK */
 import Tables from "@/components/ui/tables";
@@ -41,6 +43,7 @@ export default function TableLayout({ filter }: { filter?: any }) {
   const [data, setData] = useState<any[]>([]);
   const [editRow, setEditRow] = useState<any | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const router = useRouter();
 
   const { handleMapClick, setPosition, position, route } = useMapModal();
   const { handleDeleteClick, handleCancelButton } = useDeviceAssignment();
@@ -80,7 +83,6 @@ export default function TableLayout({ filter }: { filter?: any }) {
           fecha: item.estimatedDate?.split("T")[0] || "N/A",
           editar: item.estado?.nombre === "pendiente" &&
           hoursToDeparture !== null &&
-          hoursToDeparture <= 12 &&
           hoursToDeparture >= 2 ? "bx bxs-pencil" : "-"
           
         };
@@ -132,14 +134,14 @@ export default function TableLayout({ filter }: { filter?: any }) {
       </div>
 
       {position && (
-        <MapModal
-          lat={position.lat}
-          lng={position.lng}
-          start={{ lat: route?.Slat || null, lng: route?.Slng || null }}
-          end={{ lat: route?.Elat || null, lng: route?.Elng || null }}
-          onClose={() => setPosition(null)}
-        />
-      )}
+  <MapModal
+    lat={position.lat}
+    lng={position.lng}
+    start={{ lat: route?.Slat || null, lng: route?.Slng || null }}
+    end={{ lat: route?.Elat || null, lng: route?.Elng || null }}
+    onClose={() => setPosition(null)}
+  />
+)}
 
       {/* Modal de Edición */}
       {showEditModal && editRow && (
@@ -161,7 +163,7 @@ export default function TableLayout({ filter }: { filter?: any }) {
               })
               setShowEditModal(false);
               setTimeout(() => {
-                window.location.reload();
+                router.refresh();
               }, 2000);
             } catch (error) {
               Swal.fire({

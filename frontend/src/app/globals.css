@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
-  --background: #ffffff;
+  --background: #1A1D21;
   --foreground: #171717;
 }
 
